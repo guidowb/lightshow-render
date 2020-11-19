@@ -9,9 +9,11 @@ class ParserTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST_SUITE_END();
 
     void testSingleLine() {
-        Parser parser = Parser("solid #000");
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", parser.getWord());
+        Parser *parser = Parser::create("solid #000");
+        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser->getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", parser->getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(NULL, parser->getWord());
+        delete parser;
     };
 
     void CPPUNIT_ASSERT_STRINGS_EQUAL(const char *expected, const char *actual) {

@@ -11,16 +11,21 @@
 #define MAXWORD 32
 
 class Parser {
+public:
+    static Parser *create(const char *pattern);
+    const char *getWord();
+
 private:
     const char *next;
     char word[MAXWORD+1];
+    int wordSize;
 
-public:
+private:
     Parser(const char *pattern);
-    const char *getWord();
-
-public:
-    static Parser *create(const char *pattern);
+    void skipWhitespace();
+    bool isWhitespace(char ch);
+    void extendWord(char ch);
+    void reportError(const char *message);
 };
 
 #endif /* Parser_h */
