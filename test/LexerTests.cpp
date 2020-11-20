@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <cppunit/extensions/HelperMacros.h>
 
+#define CPPUNIT_ASSERT_STRINGS_EQUAL(expected, actual) CPPUNIT_ASSERT_EQUAL(std::string(expected), std::string(actual))
+
 class LexerTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST_SUITE( LexerTests );
     CPPUNIT_TEST( testSingleLine );
@@ -49,11 +51,4 @@ class LexerTests : public CppUnit::TestFixture  {
         CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOF, lexer.getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOF, lexer.getWord());
     };
-
-    void CPPUNIT_ASSERT_STRINGS_EQUAL(const char *expected, const char *actual) {
-        if (expected == NULL && actual == NULL) return;
-        if (expected == NULL) { CPPUNIT_FAIL("expected NULL but received value"); }
-        if (actual == NULL) { CPPUNIT_FAIL("expected value but received NULL"); }
-        CPPUNIT_ASSERT_EQUAL(std::string(expected), std::string(actual));
-    }
 };
