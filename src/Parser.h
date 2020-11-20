@@ -17,7 +17,7 @@
 
 class Parser {
 public:
-    static Parser *create(const char *pattern);
+    Parser(const char *pattern);
     const char *getWord();
 
 private:
@@ -29,7 +29,6 @@ private:
     int inSequence;
 
 private:
-    Parser(const char *pattern);
     void skipWhitespace();
     bool isWhitespace(char ch);
     void extendWord(char ch);

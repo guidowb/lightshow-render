@@ -10,10 +10,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-Parser *::Parser::create(const char *pattern) {
-    return new Parser(pattern);
-}
-
 Parser::Parser(const char *pattern) {
     this->next = pattern;
     this->sawEOC = false;

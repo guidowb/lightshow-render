@@ -12,46 +12,42 @@ class ParserTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST_SUITE_END();
 
     void testSingleLine() {
-        Parser *parser = Parser::create("solid #000");
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser->getWord());
-        delete parser;
+        Parser parser("solid #000");
+        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser.getWord());
     };
 
     void testMultipleLines() {
-        Parser *parser = Parser::create("solid #000\nsolid #fff");
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#fff", parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser->getWord());
-        delete parser;
+        Parser parser("solid #000\nsolid #fff");
+        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL("#fff", parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser.getWord());
     };
 
     void testWhitespace() {
-        Parser *parser = Parser::create("\nsolid #000\n\nsolid #fff\n");
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#fff", parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser->getWord());
-        delete parser;
+        Parser parser("\nsolid #000\n\nsolid #fff\n");
+        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL("#fff", parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser.getWord());
     };
 
     void testEOFisPermanent() {
-        Parser *parser = Parser::create("solid #000");
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser->getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser->getWord());
-        delete parser;
+        Parser parser("solid #000");
+        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser.getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser.getWord());
     };
 
     void CPPUNIT_ASSERT_STRINGS_EQUAL(const char *expected, const char *actual) {
