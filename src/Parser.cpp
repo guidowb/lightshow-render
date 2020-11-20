@@ -16,16 +16,25 @@ Parser *::Parser::create(const char *pattern) {
 
 Parser::Parser(const char *pattern) {
     this->next = pattern;
+    this->sawEOC = false;
+    this->sawSOS = false;
+    this->sawEOS = false;
+    this->sawEOF = false;
 }
+
 
 const char *Parser::getWord() {
     wordSize = 0;
     skipWhitespace();
+    if (sawEOC) { sawEOC = false; return PARSER_EOC; }
+    if (sawSOS) { sawSOS = false; return PARSER_SOS; }
+    if (sawEOS) { sawEOS = false; return PARSER_EOS; }
+    if (sawEOF) { sawEOF = false; return PARSER_EOF; }
     while (!isWhitespace(*next)) {
         extendWord(*next++);
     }
     word[wordSize] = '\0';
-    return wordSize > 0 ? word : NULL;
+    return wordSize > 0 ? word : PARSER_EOC;
 }
 
 void Parser::extendWord(char ch) {
@@ -35,10 +44,15 @@ void Parser::extendWord(char ch) {
 
 void Parser::skipWhitespace() {
     while (true) {
-        if (*next == '\0') break;
-        if (!isWhitespace(*next)) break;
+        switch (*next) {
+        case '\0': sawEOC = true; sawEOF = true; return;
+        case '\n': sawEOC = true; break;
+        case ' ':  break;
+        case '\t': break;
+        default: return;
+        }
         next++;
-    }
+    } 
 }
 
 bool Parser::isWhitespace(char ch) {
