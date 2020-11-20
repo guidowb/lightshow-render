@@ -20,21 +20,24 @@ Parser::Parser(const char *pattern) {
     this->sawSOS = false;
     this->sawEOS = false;
     this->sawEOF = false;
+    this->inCommand = false;
+    this->inSequence = 0;
 }
 
 
 const char *Parser::getWord() {
     wordSize = 0;
     skipWhitespace();
-    if (sawEOC) { sawEOC = false; return PARSER_EOC; }
+    if (sawEOC) { sawEOC = false; if (inCommand) { inCommand = false; return PARSER_EOC; }}
     if (sawSOS) { sawSOS = false; return PARSER_SOS; }
     if (sawEOS) { sawEOS = false; return PARSER_EOS; }
     if (sawEOF) { sawEOF = false; return PARSER_EOF; }
     while (!isWhitespace(*next)) {
         extendWord(*next++);
     }
+    inCommand = true;
     word[wordSize] = '\0';
-    return wordSize > 0 ? word : PARSER_EOC;
+    return word;
 }
 
 void Parser::extendWord(char ch) {

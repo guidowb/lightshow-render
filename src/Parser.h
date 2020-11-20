@@ -25,6 +25,8 @@ private:
     char word[MAXWORD+1];
     int wordSize;
     bool sawEOC, sawSOS, sawEOS, sawEOF;
+    bool inCommand;
+    int inSequence;
 
 private:
     Parser(const char *pattern);

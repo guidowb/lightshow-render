@@ -7,6 +7,7 @@ class ParserTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST_SUITE( ParserTests );
     CPPUNIT_TEST( testSingleLine );
     CPPUNIT_TEST( testMultipleLines );
+    CPPUNIT_TEST( testWhitespace );
     CPPUNIT_TEST_SUITE_END();
 
     void testSingleLine() {
