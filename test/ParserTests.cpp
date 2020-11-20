@@ -8,6 +8,7 @@ class ParserTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST( testSingleLine );
     CPPUNIT_TEST( testMultipleLines );
     CPPUNIT_TEST( testWhitespace );
+    CPPUNIT_TEST( testEOFisPermanent );
     CPPUNIT_TEST_SUITE_END();
 
     void testSingleLine() {
@@ -15,6 +16,7 @@ class ParserTests : public CppUnit::TestFixture  {
         CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser->getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL("#000", parser->getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser->getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser->getWord());
         delete parser;
     };
 
@@ -26,6 +28,7 @@ class ParserTests : public CppUnit::TestFixture  {
         CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser->getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL("#fff", parser->getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser->getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser->getWord());
         delete parser;
     };
 
@@ -37,6 +40,17 @@ class ParserTests : public CppUnit::TestFixture  {
         CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser->getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL("#fff", parser->getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser->getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser->getWord());
+        delete parser;
+    };
+
+    void testEOFisPermanent() {
+        Parser *parser = Parser::create("solid #000");
+        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser->getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", parser->getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOC, parser->getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser->getWord());
+        CPPUNIT_ASSERT_STRINGS_EQUAL(PARSER_EOF, parser->getWord());
         delete parser;
     };
 
