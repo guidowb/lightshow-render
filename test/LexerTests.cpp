@@ -1,9 +1,8 @@
-#include "../src/Lexer.h"
-
 #include <stdlib.h>
 #include <cppunit/extensions/HelperMacros.h>
 
-#define CPPUNIT_ASSERT_STRINGS_EQUAL(expected, actual) CPPUNIT_ASSERT_EQUAL(std::string(expected), std::string(actual))
+#include "../src/Lexer.h"
+#include "TestHelpers.h"
 
 class LexerTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST_SUITE( LexerTests );

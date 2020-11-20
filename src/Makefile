@@ -9,10 +9,12 @@ clean:
 	rm -f $(LIB)
 
 SRCS= \
-	Lexer.cpp
+	Lexer.cpp \
+	Parser.cpp
 
 OBJS= \
-	Lexer.o
+	Lexer.o \
+	Parser.o
 
 $(LIB): $(OBJS)
 	ar ru $@ $^
@@ -21,6 +23,6 @@ $(LIB): $(OBJS)
 %.o: %.cpp
 	g++ -g -O -c $<
 
-src/Lexer.cpp: src/Lexer.h
-
+Lexer.cpp: Lexer.h
+Parser.cpp: Parser.h
 
