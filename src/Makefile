@@ -1,14 +1,18 @@
 LIB=liblightshow.a
 
-.PHONY: all
+.PHONY: all clean
 
 all: $(LIB)
 
+clean:
+	rm -f $(OBJS)
+	rm -f $(LIB)
+
 SRCS= \
-	Parser.cpp
+	Lexer.cpp
 
 OBJS= \
-	Parser.o
+	Lexer.o
 
 $(LIB): $(OBJS)
 	ar ru $@ $^
@@ -17,6 +21,6 @@ $(LIB): $(OBJS)
 %.o: %.cpp
 	g++ -g -O -c $<
 
-src/Parser.cpp: src/Parser.h
+src/Lexer.cpp: src/Lexer.h
 
 
