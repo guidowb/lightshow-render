@@ -1,16 +1,16 @@
 //
-//  Parser.cpp
+//  Lexer.cpp
 //  LightStrings
 //
 //  Created by Guido Westenberg on 11/15/20.
 //
 
-#include "Parser.h"
+#include "Lexer.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 
-Parser::Parser(const char *pattern) {
+Lexer::Lexer(const char *pattern) {
     this->next = pattern;
     this->sawEOC = false;
     this->sawSOS = false;
@@ -20,14 +20,13 @@ Parser::Parser(const char *pattern) {
     this->inSequence = 0;
 }
 
-
-const char *Parser::getWord() {
+const char *Lexer::getWord() {
     wordSize = 0;
     skipWhitespace();
-    if (sawEOC) { sawEOC = false; if (inCommand) { inCommand = false; return PARSER_EOC; }}
-    if (sawSOS) { sawSOS = false; return PARSER_SOS; }
-    if (sawEOS) { sawEOS = false; return PARSER_EOS; }
-    if (sawEOF) { sawEOF = false; return PARSER_EOF; }
+    if (sawEOC) { sawEOC = false; if (inCommand) { inCommand = false; return LEXER_EOC; }}
+    if (sawSOS) { sawSOS = false; return LEXER_SOS; }
+    if (sawEOS) { sawEOS = false; return LEXER_EOS; }
+    if (sawEOF) { sawEOF = false; return LEXER_EOF; }
     while (!isWhitespace(*next)) {
         extendWord(*next++);
     }
@@ -36,12 +35,12 @@ const char *Parser::getWord() {
     return word;
 }
 
-void Parser::extendWord(char ch) {
+void Lexer::extendWord(char ch) {
     if (wordSize < MAXWORD) word[wordSize++] = ch;
     else reportError("Word too long");
 }
 
-void Parser::skipWhitespace() {
+void Lexer::skipWhitespace() {
     while (true) {
         switch (*next) {
         case '\0': sawEOC = true; sawEOF = true; return;
@@ -54,7 +53,7 @@ void Parser::skipWhitespace() {
     } 
 }
 
-bool Parser::isWhitespace(char ch) {
+bool Lexer::isWhitespace(char ch) {
     switch (ch) {
     case ' ' : return true;
     case '\t': return true;
@@ -65,6 +64,6 @@ bool Parser::isWhitespace(char ch) {
     }
 }
 
-void Parser::reportError(const char *message) {
+void Lexer::reportError(const char *message) {
     printf("message");
 }
