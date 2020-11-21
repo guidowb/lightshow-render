@@ -15,6 +15,7 @@ public:
     Parser(const char *sourceName, const char *pattern);
     const char *getCommand();
     void endCommand();
+    void reportError(int level, const char *message) { lexer.reportError(level, message); }
     int maxErrorLevel() { return lexer.maxErrorLevel(); }
 
 private:
