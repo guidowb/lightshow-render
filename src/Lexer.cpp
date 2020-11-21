@@ -46,6 +46,7 @@ void Lexer::extendWord(char ch) {
 }
 
 void Lexer::skipWhitespace() {
+    wordStart = next;
     while (true) {
         switch (*next) {
         case '\0':

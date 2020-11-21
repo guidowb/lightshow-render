@@ -8,6 +8,7 @@ class CompilerTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST_SUITE( CompilerTests );
     CPPUNIT_TEST( testFailure );
     CPPUNIT_TEST( testSolid );
+    CPPUNIT_TEST( testSolidMissingColor );
     CPPUNIT_TEST_SUITE_END();
 
     void testFailure() {
@@ -21,5 +22,12 @@ class CompilerTests : public CppUnit::TestFixture  {
         Compiler compiler("testSolid", "solid #000");
         Renderer *renderer = compiler.compile();
         CPPUNIT_ASSERT_NOT_NULL(renderer);
+        CPPUNIT_ASSERT_EQUAL(LEXER_OK, compiler.maxErrorLevel());
+    }
+
+    void testSolidMissingColor() {
+        Compiler compiler("testSolid", "solid");
+        Renderer *renderer = compiler.compile();
+        CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, compiler.maxErrorLevel());
     }
 };

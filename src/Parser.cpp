@@ -32,6 +32,10 @@ int Parser::hexValue(char ch) {
 
 RGBA Parser::getColor() {
     const char *word = getWord();
+    if (!strcmp(LEXER_EOC, word)) {
+        reportError(LEXER_ERROR, "expected color");
+        return RGBA_NULL;
+    }
     if (*word++ != '#') {
         reportError(LEXER_ERROR, "color constant must start with '#'");
         return RGBA_NULL;
