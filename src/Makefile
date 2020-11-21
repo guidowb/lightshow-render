@@ -11,12 +11,14 @@ clean:
 SRCS= \
 	Lexer.cpp \
 	Parser.cpp \
-	Compiler.cpp
+	Compiler.cpp \
+	Renderers.cpp
 
 OBJS= \
 	Lexer.o \
 	Parser.o \
-	Compiler.o
+	Compiler.o \
+	Renderers.o
 
 $(LIB): $(OBJS)
 	ar ru $@ $^
@@ -27,4 +29,5 @@ $(LIB): $(OBJS)
 
 Lexer.cpp: Lexer.h
 Parser.cpp: Parser.h Lexer.h
-Compiler.cpp: Compiler.h Parser.h Render.h
+Compiler.cpp: Compiler.h Parser.h Render.h Renderers.h
+Renderers.cpp: Renderers.h Render.h

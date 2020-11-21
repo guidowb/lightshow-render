@@ -7,6 +7,7 @@
 class CompilerTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST_SUITE( CompilerTests );
     CPPUNIT_TEST( testFailure );
+    CPPUNIT_TEST( testSolid );
     CPPUNIT_TEST_SUITE_END();
 
     void testFailure() {

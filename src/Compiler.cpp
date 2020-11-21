@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Renderers.h"
+
 Compiler::Compiler(const char *sourceName, const char *pattern) : parser(sourceName, pattern) {
 
 }
@@ -17,5 +19,6 @@ Renderer *Compiler::compile() {
 }
 
 Renderer *Compiler::compileSolid() {
-    return NULL;
+    RGBA color = parser.getColor();
+    return new SolidRenderer(color);
 }

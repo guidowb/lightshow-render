@@ -10,12 +10,8 @@
 
 #include <stdint.h>
 
-typedef struct {
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-    uint8_t a;
-} RGBA;
+typedef uint32_t RGBA;
+const RGBA RGBA_NULL = 0;
 
 class Canvas {
     virtual int getSize() = 0;
