@@ -13,7 +13,7 @@ class LexerTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST_SUITE_END();
 
     void testSingleLine() {
-        Lexer lexer("solid #000");
+        Lexer lexer("testSingleLine", "solid #000");
         CPPUNIT_ASSERT_STRINGS_EQUAL("solid", lexer.getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL("#000", lexer.getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOC, lexer.getWord());
@@ -21,7 +21,7 @@ class LexerTests : public CppUnit::TestFixture  {
     };
 
     void testMultipleLines() {
-        Lexer lexer("solid #000\nsolid #fff");
+        Lexer lexer("testMultipleLines", "solid #000\nsolid #fff");
         CPPUNIT_ASSERT_STRINGS_EQUAL("solid", lexer.getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL("#000", lexer.getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOC, lexer.getWord());
@@ -32,7 +32,7 @@ class LexerTests : public CppUnit::TestFixture  {
     };
 
     void testWhitespace() {
-        Lexer lexer("\nsolid #000\n\nsolid #fff\n");
+        Lexer lexer("testWhiteSpace", "\nsolid #000\n\nsolid #fff\n");
         CPPUNIT_ASSERT_STRINGS_EQUAL("solid", lexer.getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL("#000", lexer.getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOC, lexer.getWord());
@@ -43,7 +43,7 @@ class LexerTests : public CppUnit::TestFixture  {
     };
 
     void testEOFisPermanent() {
-        Lexer lexer("solid #000");
+        Lexer lexer("testEOFisPermanent", "solid #000");
         CPPUNIT_ASSERT_STRINGS_EQUAL("solid", lexer.getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL("#000", lexer.getWord());
         CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOC, lexer.getWord());

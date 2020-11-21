@@ -12,7 +12,7 @@
 
 class Parser {
 public:
-    Parser(const char *pattern);
+    Parser(const char *sourceName, const char *pattern);
     const char *getCommand();
     void endCommand();
     int maxErrorLevel() { return lexer.maxErrorLevel(); }

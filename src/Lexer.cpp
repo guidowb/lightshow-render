@@ -11,7 +11,8 @@
 #include <stdio.h>
 #include <algorithm>
 
-Lexer::Lexer(const char *pattern) {
+Lexer::Lexer(const char *sourceName, const char *pattern) {
+    this->sourceName = sourceName;
     this->next = pattern;
     this->sawEOC = false;
     this->sawSOS = false;
@@ -20,6 +21,8 @@ Lexer::Lexer(const char *pattern) {
     this->inCommand = false;
     this->inSequence = 0;
     this->errorLevel = LEXER_OK;
+    this->lineNumber = 1;
+    this->lineStart = this->next;
 }
 
 const char *Lexer::getWord() {
@@ -45,11 +48,19 @@ void Lexer::extendWord(char ch) {
 void Lexer::skipWhitespace() {
     while (true) {
         switch (*next) {
-        case '\0': sawEOC = true; sawEOF = true; return;
-        case '\n': sawEOC = true; break;
-        case ' ':  break;
-        case '\t': break;
-        default: return;
+        case '\0':
+            sawEOC = true; sawEOF = true; return;
+        case '\n':
+            lineStart = next + 1;
+            lineNumber++;
+            sawEOC = true; break;
+        case ' ': 
+            break;
+        case '\t':
+            break;
+        default:
+            wordStart = next;
+            return;
         }
         next++;
     } 
@@ -66,14 +77,18 @@ bool Lexer::isWhitespace(char ch) {
     }
 }
 
+const char *levelNames[] = { "OK", "INFO", "WARNING", "ERROR", "FATAL" };
+
 void Lexer::reportError(int level, const char *message) {
-    // What we want to get out of this is:
-    // <inputfile>:<line>:<column>: ERROR: <message>
-    // <input line containing failure>
-    // <caret in the failing column>
-    // The line and column reported should be the one where the last lexed word started
+    const char *levelName = levelNames[level];
     errorLevel = std::max(errorLevel, level);
-    printf("message");
+    int columnNumber = wordStart - lineStart + 1;
+    fprintf(stderr, "%s:%d:%d: %s: %s\n", sourceName, lineNumber, columnNumber, levelName, message);
+    const char *c = lineStart;
+    while (*c != '\n' && *c != '\0') { fprintf(stderr, "%c", *c++); }
+    fprintf(stderr, "\n" );
+    for (int count = 1; count < columnNumber; count++) { fprintf(stderr, " "); }
+    fprintf(stderr, "^\n");
 }
 
 int Lexer::maxErrorLevel() {

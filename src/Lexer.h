@@ -23,12 +23,13 @@
 
 class Lexer {
 public:
-    Lexer(const char *pattern);
+    Lexer(const char *sourceName, const char *pattern);
     const char *getWord();
     void reportError(int level, const char *message);
     int maxErrorLevel();
 
 private:
+    const char *sourceName;
     const char *next;
     char word[MAXWORD+1];
     int wordSize;
@@ -36,6 +37,8 @@ private:
     bool inCommand;
     int inSequence;
     int errorLevel;
+    int lineNumber;
+    const char *lineStart, *wordStart;
 
 private:
     void skipWhitespace();

@@ -10,14 +10,14 @@ class ParserTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST_SUITE_END();
 
     void testSimpleCommand() {
-        Parser parser("solid");
+        Parser parser("testSimpleCommand", "solid");
         CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser.getCommand());
         parser.endCommand();
         CPPUNIT_ASSERT_EQUAL(0, parser.maxErrorLevel());
     }
 
     void testExtraArguments() {
-        Parser parser("solid blah");
+        Parser parser("testExtraArguments", "solid blah");
         CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser.getCommand());
         parser.endCommand();
         CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());

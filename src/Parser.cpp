@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-Parser::Parser(const char *pattern) : lexer(pattern) {
+Parser::Parser(const char *sourceName, const char *pattern) : lexer(sourceName, pattern) {
     word = NULL;
 }
 
