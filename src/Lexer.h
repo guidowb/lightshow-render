@@ -15,10 +15,18 @@
 #define LEXER_EOS "EOS" // End of Sequence
 #define LEXER_EOF "EOF" // End of File
 
+#define LEXER_OK      0
+#define LEXER_INFO    1
+#define LEXER_WARNING 2
+#define LEXER_ERROR   3
+#define LEXER_FATAL   4
+
 class Lexer {
 public:
     Lexer(const char *pattern);
     const char *getWord();
+    void reportError(int level, const char *message);
+    int maxErrorLevel();
 
 private:
     const char *next;
@@ -27,12 +35,12 @@ private:
     bool sawEOC, sawSOS, sawEOS, sawEOF;
     bool inCommand;
     int inSequence;
+    int errorLevel;
 
 private:
     void skipWhitespace();
     bool isWhitespace(char ch);
     void extendWord(char ch);
-    void reportError(const char *message);
 };
 
 #endif /* Lexer_h */

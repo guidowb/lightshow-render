@@ -14,6 +14,8 @@ class Parser {
 public:
     Parser(const char *pattern);
     const char *getCommand();
+    void endCommand();
+    int maxErrorLevel() { return lexer.maxErrorLevel(); }
 
 private:
     Lexer lexer;

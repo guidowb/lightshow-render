@@ -9,6 +9,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <algorithm>
 
 Lexer::Lexer(const char *pattern) {
     this->next = pattern;
@@ -18,6 +19,7 @@ Lexer::Lexer(const char *pattern) {
     this->sawEOF = false;
     this->inCommand = false;
     this->inSequence = 0;
+    this->errorLevel = LEXER_OK;
 }
 
 const char *Lexer::getWord() {
@@ -37,7 +39,7 @@ const char *Lexer::getWord() {
 
 void Lexer::extendWord(char ch) {
     if (wordSize < MAXWORD) word[wordSize++] = ch;
-    else reportError("Word too long");
+    else reportError(LEXER_ERROR, "Word too long");
 }
 
 void Lexer::skipWhitespace() {
@@ -64,6 +66,16 @@ bool Lexer::isWhitespace(char ch) {
     }
 }
 
-void Lexer::reportError(const char *message) {
+void Lexer::reportError(int level, const char *message) {
+    // What we want to get out of this is:
+    // <inputfile>:<line>:<column>: ERROR: <message>
+    // <input line containing failure>
+    // <caret in the failing column>
+    // The line and column reported should be the one where the last lexed word started
+    errorLevel = std::max(errorLevel, level);
     printf("message");
+}
+
+int Lexer::maxErrorLevel() {
+    return this->errorLevel;
 }

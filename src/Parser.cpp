@@ -1,6 +1,7 @@
 #include "Parser.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 Parser::Parser(const char *pattern) : lexer(pattern) {
     word = NULL;
@@ -20,4 +21,12 @@ void Parser::pushBack(const char *word) {
 const char *Parser::getCommand() {
     const char *command = getWord();
     return command;
+}
+
+void Parser::endCommand() {
+    const char *next = getWord();
+    if (strcmp(next, LEXER_EOC)) {
+        lexer.reportError(LEXER_ERROR, "extra arguments");
+    }
+    while (strcmp(next, LEXER_EOC)) next = getWord();
 }
