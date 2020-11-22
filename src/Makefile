@@ -12,13 +12,15 @@ SRCS= \
 	Lexer.cpp \
 	Parser.cpp \
 	Compiler.cpp \
-	Renderers.cpp
+	Renderers.cpp \
+	LightShow.cpp
 
 OBJS= \
 	Lexer.o \
 	Parser.o \
 	Compiler.o \
-	Renderers.o
+	Renderers.o \
+	LightShow.o
 
 $(LIB): $(OBJS)
 	ar ru $@ $^
@@ -31,3 +33,4 @@ Lexer.cpp: Lexer.h
 Parser.cpp: Parser.h Lexer.h
 Compiler.cpp: Compiler.h Parser.h LightShow.h Renderers.h
 Renderers.cpp: Renderers.h LightShow.h
+LightShow.cpp: LightShow.h Compiler.h
