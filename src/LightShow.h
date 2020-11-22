@@ -12,6 +12,7 @@ typedef uint32_t RGBA;
 const RGBA RGBA_NULL = 0;
 
 class Canvas {
+public:
     virtual int getSize() = 0;
     virtual int getTimestamp() = 0;
     virtual void setPixel(int pixel, RGBA color) = 0;
