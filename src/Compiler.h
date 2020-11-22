@@ -10,6 +10,7 @@
 
 #include "LightShow.h"
 #include "Parser.h"
+#include "Renderers.h"
 
 class Compiler {
 public:

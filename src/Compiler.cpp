@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "Renderers.h"
-
 Compiler::Compiler(const char *sourceName, const char *pattern) : parser(sourceName, pattern) {
 
 }
@@ -21,4 +19,13 @@ Renderer *Compiler::compile() {
 Renderer *Compiler::compileSolid() {
     RGBA color = parser.getColor();
     return new SolidRenderer(color);
+}
+
+bool render(const char *sourceName, const char *pattern, Canvas *canvas) {
+    Compiler compiler(sourceName, pattern);
+    Renderer *renderer = compiler.compile();
+    if (renderer == NULL) return false;
+    renderer->render(canvas);
+    delete renderer;
+    return true;
 }

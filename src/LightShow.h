@@ -17,8 +17,6 @@ class Canvas {
     virtual void setPixel(int pixel, RGBA color) = 0;
 };
 
-class Renderer {
-    virtual void render(Canvas *canvas) = 0;
-};
+extern bool render(const char *sourceName, const char *pattern, Canvas *canvas);
 
 #endif /* LightShow_h */

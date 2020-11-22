@@ -10,6 +10,12 @@
 
 #include "LightShow.h"
 
+class Renderer {
+public:
+    virtual ~Renderer();
+    virtual void render(Canvas *canvas) = 0;
+};
+
 class SolidRenderer : public Renderer {
 public:
     SolidRenderer(RGBA color);
