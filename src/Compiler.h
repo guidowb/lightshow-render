@@ -8,7 +8,7 @@
 #ifndef Compiler_h
 #define Compiler_h
 
-#include "Render.h"
+#include "LightShow.h"
 #include "Parser.h"
 
 class Compiler {

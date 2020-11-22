@@ -8,7 +8,7 @@
 #ifndef Renderers_h
 #define Renderers_h
 
-#include "Render.h"
+#include "LightShow.h"
 
 class SolidRenderer : public Renderer {
 public:

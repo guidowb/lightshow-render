@@ -29,5 +29,5 @@ $(LIB): $(OBJS)
 
 Lexer.cpp: Lexer.h
 Parser.cpp: Parser.h Lexer.h
-Compiler.cpp: Compiler.h Parser.h Render.h Renderers.h
-Renderers.cpp: Renderers.h Render.h
+Compiler.cpp: Compiler.h Parser.h LightShow.h Renderers.h
+Renderers.cpp: Renderers.h LightShow.h

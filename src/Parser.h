@@ -9,7 +9,7 @@
 #define Parser_h
 
 #include "Lexer.h"
-#include "Render.h"
+#include "LightShow.h"
 
 class Parser {
 public:
