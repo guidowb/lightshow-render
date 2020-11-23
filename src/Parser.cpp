@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 Parser::Parser(const char *sourceName, const char *pattern) : lexer(sourceName, pattern) {
     word = NULL;
@@ -28,6 +29,23 @@ int Parser::hexValue(char ch) {
     if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
     if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
     return 0;
+}
+
+int Parser::getInt() {
+    const char *word = getWord();
+    if (!strcmp(LEXER_EOC, word) || !isdigit(*word)) {
+        reportError(LEXER_ERROR, "expected integer");
+        return 0;
+    }
+    int value = 0;
+    while (char digit = *word++) {
+        if (!isdigit(digit)) {
+            reportError(LEXER_ERROR, "invalid digit in number constant");
+            return 0;
+        }
+        value = value * 10 + (digit - '0');
+    }
+    return value;
 }
 
 RGBA Parser::getColor() {
@@ -70,6 +88,12 @@ RGBA Parser::getColor() {
         else a = 0x0ff;
     }
     return (r << 24) | (g << 16) | (b << 8) | a;
+}
+
+bool Parser::endOfCommand() {
+    const char *next = getWord();
+    pushBack(next);
+    return (!strcmp(next, LEXER_EOC));
 }
 
 void Parser::endCommand() {

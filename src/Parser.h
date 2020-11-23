@@ -15,7 +15,9 @@ class Parser {
 public:
     Parser(const char *sourceName, const char *pattern);
     const char *getCommand();
+    int getInt();
     RGBA getColor();
+    bool endOfCommand();
     void endCommand();
     void reportError(int level, const char *message) { lexer.reportError(level, message); }
     int maxErrorLevel() { return lexer.maxErrorLevel(); }

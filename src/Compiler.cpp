@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <vector>
 
 Compiler::Compiler(const char *sourceName, const char *pattern) : parser(sourceName, pattern) {
 
@@ -10,6 +11,7 @@ Compiler::Compiler(const char *sourceName, const char *pattern) : parser(sourceN
 Renderer *Compiler::compile() {
     const char *command = parser.getCommand();
     if (!strcmp("solid", command)) return compileSolid();
+    else if (!strcmp("dots", command)) return compileDots();
     else {
         parser.reportError(LEXER_ERROR, "unknown command");
         return NULL;
@@ -21,11 +23,12 @@ Renderer *Compiler::compileSolid() {
     return new SolidRenderer(color);
 }
 
-bool render(const char *sourceName, const char *pattern, Canvas *canvas) {
-    Compiler compiler(sourceName, pattern);
-    Renderer *renderer = compiler.compile();
-    if (renderer == NULL) return false;
-    renderer->render(canvas);
-    delete renderer;
-    return true;
+Renderer *Compiler::compileDots() {
+    std::vector<RGBA> colors;
+    int spacing = parser.getInt();
+    colors.push_back(parser.getColor());
+    while (!parser.endOfCommand()) {
+        colors.push_back(parser.getColor());
+    }
+    return new DotsRenderer(spacing, colors);
 }

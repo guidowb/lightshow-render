@@ -23,6 +23,7 @@ private:
 
 private:
     Renderer *compileSolid();
+    Renderer *compileDots();
 };
 
 #endif /* Compiler_h */

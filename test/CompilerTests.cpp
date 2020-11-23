@@ -1,7 +1,7 @@
-#include "../src/Compiler.h"
-
 #include <stdlib.h>
 #include <cppunit/extensions/HelperMacros.h>
+
+#include "../src/Compiler.h"
 #include "TestHelpers.h"
 
 class CompilerTests : public CppUnit::TestFixture  {

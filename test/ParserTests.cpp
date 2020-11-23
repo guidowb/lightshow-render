@@ -1,12 +1,15 @@
-#include "../src/Parser.h"
-
 #include <stdlib.h>
 #include <cppunit/extensions/HelperMacros.h>
+
+#include "../src/Parser.h"
+#include "TestHelpers.h"
 
 class ParserTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST_SUITE( ParserTests );
     CPPUNIT_TEST( testSimpleCommand );
     CPPUNIT_TEST( testExtraArguments );
+    CPPUNIT_TEST( testInvalidInt );
+    CPPUNIT_TEST( testValidInt );
     CPPUNIT_TEST( testInvalidColor );
     CPPUNIT_TEST( testInvalidColorDigit );
     CPPUNIT_TEST( testInvalidColorLength );
@@ -28,6 +31,18 @@ class ParserTests : public CppUnit::TestFixture  {
         CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser.getCommand());
         parser.endCommand();
         CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());
+    }
+
+    void testInvalidInt() {
+        Parser parser("testInvalidInt", "nonsense");
+        CPPUNIT_ASSERT_EQUAL(0, parser.getInt());
+        CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());
+    }
+
+    void testValidInt() {
+        Parser parser("testValidInt", "1234");
+        CPPUNIT_ASSERT_EQUAL(1234, parser.getInt());
+        CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }
 
     void testInvalidColor() {

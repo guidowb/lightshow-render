@@ -9,6 +9,7 @@
 #define Renderers_h
 
 #include "LightShow.h"
+#include <vector>
 
 class Renderer {
 public:
@@ -23,6 +24,18 @@ public:
 
 private:
     RGBA color;
+};
+
+class DotsRenderer : public Renderer {
+public:
+    DotsRenderer(int spacing, std::vector<RGBA> &colors);
+    virtual ~DotsRenderer();
+    virtual void render(Canvas *canvas);
+
+private:
+    int spacing;
+    int ncolors;
+    RGBA *color;
 };
 
 #endif /* Renderers_h */
