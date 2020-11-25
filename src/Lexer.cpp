@@ -49,7 +49,6 @@ const Word &Lexer::getWord() {
     // Return prior word is it was ungotten
     if (word.m_isValid) {
         if (!word.m_isEOF) word.m_isValid = false;
-        printf("\n--- Prior word\n");
         return word;
     }
 
@@ -57,11 +56,6 @@ const Word &Lexer::getWord() {
     word.reset(next);
     wordStart = next; // Error Context
     if (skipWhitespace()) {
-        printf("\n--- Word: %s %s %s %s\n",
-            word.isEOC() ? "EOC" : "",
-            word.isSOS() ? "SOS" : "",
-            word.isEOS() ? "EOS" : "",
-            word.isEOF() ? "EOF" : "");
         return word;
     }
 
@@ -72,7 +66,6 @@ const Word &Lexer::getWord() {
         word.extend();
         next++;
     }
-    printf("\n--- Word(string): %.*s\n", word.len, word.start);
     return word;
 }
 
