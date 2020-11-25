@@ -21,14 +21,14 @@ class ParserTests : public CppUnit::TestFixture  {
 
     void testSimpleCommand() {
         Parser parser("testSimpleCommand", "solid");
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser.getCommand());
+        CPPUNIT_ASSERT(parser.getCommand() == "solid");
         parser.endCommand();
         CPPUNIT_ASSERT_EQUAL(0, parser.maxErrorLevel());
     }
 
     void testExtraArguments() {
         Parser parser("testExtraArguments", "solid blah");
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", parser.getCommand());
+        CPPUNIT_ASSERT(parser.getCommand() == "solid");
         parser.endCommand();
         CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());
     }

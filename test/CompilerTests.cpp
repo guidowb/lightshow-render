@@ -14,7 +14,7 @@ class CompilerTests : public CppUnit::TestFixture  {
     void testFailure() {
         Compiler compiler("testFailure", "nonsense");
         Renderer *renderer = compiler.compile();
-        CPPUNIT_ASSERT_NULL(renderer);
+        CPPUNIT_ASSERT_NOT_NULL(renderer);
         CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, compiler.maxErrorLevel());
     }
 
@@ -28,6 +28,7 @@ class CompilerTests : public CppUnit::TestFixture  {
     void testSolidMissingColor() {
         Compiler compiler("testSolid", "solid");
         Renderer *renderer = compiler.compile();
+        CPPUNIT_ASSERT_NOT_NULL(renderer);
         CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, compiler.maxErrorLevel());
     }
 };

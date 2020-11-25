@@ -17,6 +17,17 @@ public:
     virtual void render(Canvas *canvas) = 0;
 };
 
+class BlockRenderer : public Renderer {
+public:
+    BlockRenderer(std::vector<Renderer *> &renderers);
+    virtual ~BlockRenderer();
+    virtual void render(Canvas *canvas);
+
+private:
+    int nrenderers;
+    Renderer **renderer;
+};
+
 class SolidRenderer : public Renderer {
 public:
     SolidRenderer(RGBA color);

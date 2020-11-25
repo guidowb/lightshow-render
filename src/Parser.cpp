@@ -3,24 +3,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <stdio.h>
+#include <unistd.h>
 
 Parser::Parser(const char *sourceName, const char *pattern) : lexer(sourceName, pattern) {
     word = NULL;
 }
 
-const char *Parser::getWord() {
-    const char *word = this->word;
-    this->word = NULL;
-    if (word != NULL) return word;
-    return lexer.getWord();
-}
-
-void Parser::pushBack(const char *word) {
-    this->word = word;
-}
-
-const char *Parser::getCommand() {
-    const char *command = getWord();
+const Word &Parser::getCommand() {
+    const Word &command = lexer.getWord();
+    if (!command.isString()) {
+        lexer.ungetWord();
+        reportError(LEXER_ERROR, "expected command");
+    }
     return command;
 }
 
@@ -32,39 +27,36 @@ int Parser::hexValue(char ch) {
 }
 
 int Parser::getInt() {
-    const char *word = getWord();
-    if (!strcmp(LEXER_EOC, word) || !isdigit(*word)) {
+    const Word &word = lexer.getWord();
+    if (!word.isString() || !isdigit(word[0])) {
+        lexer.ungetWord();
         reportError(LEXER_ERROR, "expected integer");
         return 0;
     }
     int value = 0;
-    while (char digit = *word++) {
-        if (!isdigit(digit)) {
+    for (int i = 0; const char ch = word[i]; i++) {
+        if (!isdigit(ch)) {
             reportError(LEXER_ERROR, "invalid digit in number constant");
             return 0;
         }
-        value = value * 10 + (digit - '0');
+        value = value * 10 + (ch - '0');
     }
     return value;
 }
 
 RGBA Parser::getColor() {
-    const char *word = getWord();
-    if (!strcmp(LEXER_EOC, word)) {
+    const Word &word = lexer.getWord();
+    if (!word.isString() || word[0] != '#') {
+        lexer.ungetWord();
         reportError(LEXER_ERROR, "expected color");
         return RGBA_NULL;
     }
-    if (*word++ != '#') {
-        reportError(LEXER_ERROR, "color constant must start with '#'");
-        return RGBA_NULL;
-    }
-    int len;
-    const char *digit = word;
-    for (len = 0; len < 9; len++, digit++) {
-        if (*digit == '\0') break;
-        if (*digit >= '0' && *digit <= '9') continue;
-        if (*digit >= 'a' && *digit <= 'f') continue;
-        if (*digit >= 'A' && *digit <= 'F') continue;
+    int len = 0;
+    for (int i = 1; const char ch = word[i]; i++) {
+        len++;
+        if (ch >= '0' && ch <= '9') continue;
+        if (ch >= 'a' && ch <= 'f') continue;
+        if (ch >= 'A' && ch <= 'F') continue;
         reportError(LEXER_ERROR, "color constant must only contain hex digits");
         return RGBA_NULL;
     }
@@ -74,32 +66,38 @@ RGBA Parser::getColor() {
     }
     uint8_t r, g, b, a;
     if (len <= 4) {
-        r = (hexValue(word[0]) << 4) + hexValue(word[0]);
-        g = (hexValue(word[1]) << 4) + hexValue(word[1]);
-        b = (hexValue(word[2]) << 4) + hexValue(word[2]);
-        if (len == 4) a = (hexValue(word[3]) << 4) + hexValue(word[3]);
+        r = (hexValue(word[1]) << 4) + hexValue(word[1]);
+        g = (hexValue(word[2]) << 4) + hexValue(word[2]);
+        b = (hexValue(word[3]) << 4) + hexValue(word[3]);
+        if (len == 4) a = (hexValue(word[4]) << 4) + hexValue(word[4]);
         else a = 0x0ff;
     }
     else {
-        r = (hexValue(word[0]) << 4) + hexValue(word[1]);
-        g = (hexValue(word[2]) << 4) + hexValue(word[3]);
-        b = (hexValue(word[4]) << 4) + hexValue(word[5]);
-        if (len == 8) a = (hexValue(word[6]) << 4) + hexValue(word[7]);
+        r = (hexValue(word[1]) << 4) + hexValue(word[2]);
+        g = (hexValue(word[3]) << 4) + hexValue(word[4]);
+        b = (hexValue(word[5]) << 4) + hexValue(word[6]);
+        if (len == 8) a = (hexValue(word[7]) << 4) + hexValue(word[8]);
         else a = 0x0ff;
     }
     return (r << 24) | (g << 16) | (b << 8) | a;
 }
 
+bool Parser::endOfBlock() {
+    const Word &word = lexer.getWord();
+    lexer.ungetWord();
+    return word.isEOS();
+}
+
 bool Parser::endOfCommand() {
-    const char *next = getWord();
-    pushBack(next);
-    return (!strcmp(next, LEXER_EOC));
+    const Word &word = lexer.getWord();
+    lexer.ungetWord();
+    return word.isEOC();
 }
 
 void Parser::endCommand() {
-    const char *next = getWord();
-    if (strcmp(next, LEXER_EOC)) {
+    const Word &word = lexer.getWord();
+    if (!word.isEOC()) {
         reportError(LEXER_ERROR, "extra arguments");
     }
-    while (strcmp(next, LEXER_EOC)) next = getWord();
+    while (!lexer.getWord().isEOC()) {}
 }

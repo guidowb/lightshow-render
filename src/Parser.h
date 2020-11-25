@@ -14,9 +14,10 @@
 class Parser {
 public:
     Parser(const char *sourceName, const char *pattern);
-    const char *getCommand();
+    const Word &getCommand();
     int getInt();
     RGBA getColor();
+    bool endOfBlock();
     bool endOfCommand();
     void endCommand();
     void reportError(int level, const char *message) { lexer.reportError(level, message); }
@@ -27,8 +28,6 @@ private:
     const char *word;
 
 private:
-    const char *getWord();
-    void pushBack(const char *word);
     int hexValue(char ch);
 };
 

@@ -22,6 +22,8 @@ private:
     Parser parser;
 
 private:
+    Renderer *compileBlock();
+    Renderer *compileCommand();
     Renderer *compileSolid();
     Renderer *compileDots();
 };

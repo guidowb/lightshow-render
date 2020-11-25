@@ -14,40 +14,40 @@ class LexerTests : public CppUnit::TestFixture  {
 
     void testSingleLine() {
         Lexer lexer("testSingleLine", "solid #000");
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOC, lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOF, lexer.getWord());
+        CPPUNIT_ASSERT(lexer.getWord() == "solid");
+        CPPUNIT_ASSERT(lexer.getWord() == "#000");
+        CPPUNIT_ASSERT(lexer.getWord().isEOC());
+        CPPUNIT_ASSERT(lexer.getWord().isEOF());
     };
 
     void testMultipleLines() {
         Lexer lexer("testMultipleLines", "solid #000\nsolid #fff");
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOC, lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#fff", lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOC, lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOF, lexer.getWord());
+        CPPUNIT_ASSERT(lexer.getWord() == "solid");
+        CPPUNIT_ASSERT(lexer.getWord() == "#000");
+        CPPUNIT_ASSERT(lexer.getWord().isEOC());
+        CPPUNIT_ASSERT(lexer.getWord() == "solid");
+        CPPUNIT_ASSERT(lexer.getWord() == "#fff");
+        CPPUNIT_ASSERT(lexer.getWord().isEOC());
+        CPPUNIT_ASSERT(lexer.getWord().isEOF());
     };
 
     void testWhitespace() {
         Lexer lexer("testWhiteSpace", "\nsolid #000\n\nsolid #fff\n");
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOC, lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#fff", lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOC, lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOF, lexer.getWord());
+        CPPUNIT_ASSERT(lexer.getWord() == "solid");
+        CPPUNIT_ASSERT(lexer.getWord() == "#000");
+        CPPUNIT_ASSERT(lexer.getWord().isEOC());
+        CPPUNIT_ASSERT(lexer.getWord() == "solid");
+        CPPUNIT_ASSERT(lexer.getWord() == "#fff");
+        CPPUNIT_ASSERT(lexer.getWord().isEOC());
+        CPPUNIT_ASSERT(lexer.getWord().isEOF());
     };
 
     void testEOFisPermanent() {
         Lexer lexer("testEOFisPermanent", "solid #000");
-        CPPUNIT_ASSERT_STRINGS_EQUAL("solid", lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL("#000", lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOC, lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOF, lexer.getWord());
-        CPPUNIT_ASSERT_STRINGS_EQUAL(LEXER_EOF, lexer.getWord());
+        CPPUNIT_ASSERT(lexer.getWord() == "solid");
+        CPPUNIT_ASSERT(lexer.getWord() == "#000");
+        CPPUNIT_ASSERT(lexer.getWord().isEOC());
+        CPPUNIT_ASSERT(lexer.getWord().isEOF());
+        CPPUNIT_ASSERT(lexer.getWord().isEOF());
     };
 };
