@@ -16,22 +16,24 @@
 
 class Word {
 public:
-    bool isEOC() const { return m_isEOC; }
+    Word(const char *start);
+
+public:
+    bool isEOL() const { return m_isEOL; }
     bool isEOF() const { return m_isEOF; }
-    bool isEOS() const { return m_isEOS; }
-    bool isSOS() const { return m_isSOS; }
     bool isString() const { return len > 0; }
     bool operator==(const char other[]) const;
+    bool operator==(const Word &other) const;
+    bool operator<(const Word &other) const;
+    bool operator>(const Word &other) const;
+    bool operator>=(const Word &other) const;
     const char operator[](const int index) const;
 
 private:
     const char *start;
     int len;
-    bool m_isEOC;
+    bool m_isEOL;
     bool m_isEOF;
-    bool m_isEOS;
-    bool m_isSOS;
-    bool m_isValid;
 
 private:
     friend class Lexer;
@@ -42,8 +44,8 @@ private:
 class Lexer {
 public:
     Lexer(const char *sourceName, const char *pattern);
-    const Word &getWord();
-    void ungetWord();
+    const Word &peek() { return word; }
+    const Word &next();
     void reportError(int level, const char *message);
     int maxErrorLevel();
 
@@ -52,7 +54,7 @@ private:
 
 private: // Error Context
     const char *sourceName;
-    const char *next;
+    const char *position;
     int errorLevel;
     int lineNumber;
     const char *lineStart, *wordStart;

@@ -11,24 +11,30 @@
 #include <stdio.h>
 #include <algorithm>
 
-Lexer::Lexer(const char *sourceName, const char *pattern) {
+#define printf(fmt, ...) {}
+
+Lexer::Lexer(const char *sourceName, const char *pattern) : word(pattern) {
     // Error Context
     this->sourceName = sourceName;
-    this->next = pattern;
+    this->position = pattern;
     this->errorLevel = LEXER_OK;
     this->lineNumber = 1;
-    this->lineStart = this->next;
-    this->word.m_isValid = false;
+    this->lineStart = this->position;
     skipWhitespace();
 }
+
+Word::Word(const char *start) {
+    this->start = start;
+    this->len = 0;
+    this->m_isEOL = true;
+    this->m_isEOF = false;
+} 
 
 void Word::reset(const char *start) {
     this->start = start;
     this->len = 0;
-    this->m_isEOC = false;
+    this->m_isEOL = false;
     this->m_isEOF = false;
-    this->m_isEOS = false;
-    this->m_isSOS = false;
 }
 
 void Word::extend() {
@@ -36,7 +42,26 @@ void Word::extend() {
 }
 
 bool Word::operator==(const char other[]) const {
-    return !strncmp(this->start, other, this->len);
+    return !strncmp(this->start, other, this->len) && other[this->len] == '\0';
+}
+
+bool Word::operator==(const Word &other) const {
+    if (this->len != other.len) return false;
+    return !strncmp(this->start, other.start, this->len);
+}
+
+bool Word::operator>(const Word &other) const {
+    if (this->len <= other.len) return false;
+    return !strncmp(this->start, other.start, other.len);
+}
+
+bool Word::operator<(const Word &other) const {
+    if (this->len >= other.len) return false;
+    return !strncmp(this->start, other.start, this->len);
+}
+
+bool Word::operator>=(const Word &other) const {
+    return !(*this < other);
 }
 
 const char Word::operator[](const int index) const {
@@ -44,58 +69,55 @@ const char Word::operator[](const int index) const {
     else return start[index];
 }
 
-const Word &Lexer::getWord() {
+const Word &Lexer::next() {
 
-    // Return prior word is it was ungotten
-    if (word.m_isValid) {
-        if (!word.m_isEOF) word.m_isValid = false;
+    // EOF word is persistent
+    if (word.isEOF()) {
+        printf("\nlexer returns EOF\n");
         return word;
     }
 
     // Return whitespace word if it is significant
-    word.reset(next);
-    wordStart = next; // Error Context
+    word.reset(position);
+    wordStart = position; // Error Context
     if (skipWhitespace()) {
+        printf("\nlexer returns EOL\n");
         return word;
     }
 
     // Return string word
-    word.reset(next);
-    wordStart = next; // Error Context
-    while (!isWhitespace(*next)) {
+    word.reset(position);
+    wordStart = position; // Error Context
+    while (!isWhitespace(*position)) {
         word.extend();
-        next++;
+        position++;
     }
+    printf("\nlexer returns word \"%.*s\"\n", word.len, word.start);
     return word;
-}
-
-void Lexer::ungetWord() {
-    word.m_isValid = true;
 }
 
 bool Lexer::skipWhitespace() {
     while (true) {
-        switch (*next) {
+        switch (*position) {
         case '\0':
-            word.m_isEOC = true;
-            word.m_isEOS = true;
+            word.m_isEOL = true;
             word.m_isEOF = true;
             return true;
         case '\n':
-            lineStart = next + 1;
+            word.reset(position + 1);
+            lineStart = position + 1; // Error Context
             lineNumber++;
-            word.m_isEOC = true;
+            word.m_isEOL = true;
             break;
-        case ' ': 
-            break;
-        case '\t':
+        case ' ': case '\t':
+            word.extend();
             break;
         case '\r':
             break;
         default:
-            return word.m_isEOC || word.m_isEOS;
+            return word.m_isEOL;
         }
-        next++;
+        position++;
     } 
 }
 

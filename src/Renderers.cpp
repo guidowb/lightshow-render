@@ -16,6 +16,7 @@ BlockRenderer::~BlockRenderer() {
 }
 
 void BlockRenderer::render(Canvas *canvas) {
+    printf("render block of %d", nrenderers);
     for (int p = 0; p < this->nrenderers; p++) this->renderer[p]->render(canvas);
 }
 
@@ -24,6 +25,7 @@ SolidRenderer::SolidRenderer(RGBA color) {
 }
 
 void SolidRenderer::render(Canvas *canvas) {
+    printf("render solid");
     for (int p = 0; p < canvas->getSize(); p++) canvas->setPixel(p, color);
 }
 
@@ -39,6 +41,7 @@ DotsRenderer::~DotsRenderer() {
 }
 
 void DotsRenderer::render(Canvas *canvas) {
+    printf("render dots with %d", ncolors);
     int c = 0;
     for (int p = 0; p < canvas->getSize(); p += spacing) {
         canvas->setPixel(p, color[c]);

@@ -14,21 +14,33 @@
 class Parser {
 public:
     Parser(const char *sourceName, const char *pattern);
+
+public:
     const Word &getCommand();
-    int getInt();
+    int  getInteger();
     RGBA getColor();
-    bool endOfBlock();
-    bool endOfCommand();
+    bool inCommand();
     void endCommand();
+    void skipCommand();
+    const Word startBlock();
+    bool inBlock();
+    void endBlock(const Word &indent);
+
+public: // Error Context
     void reportError(int level, const char *message) { lexer.reportError(level, message); }
     int maxErrorLevel() { return lexer.maxErrorLevel(); }
 
 private:
     Lexer lexer;
-    const char *word;
+    Word indent;
+    bool rewound;
 
 private:
+    const Word &next();
+    const Word &peek();
+    const Word &peeknext();
     int hexValue(char ch);
+    bool isEOC(const Word &word);
 };
 
 #endif /* Parser_h */

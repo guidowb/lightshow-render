@@ -4,6 +4,8 @@
 #include <string.h>
 #include <vector>
 
+#define printf(fmt, ...) {}
+
 Compiler::Compiler(const char *sourceName, const char *pattern) : parser(sourceName, pattern) {
 
 }
@@ -17,18 +19,22 @@ Renderer *Compiler::compileCommand() {
     if (command == "solid") return compileSolid();
     else if (command == "dots") return compileDots();
     else {
-        parser.reportError(LEXER_ERROR, "unknown command");
-        parser.endCommand();
+        parser.reportError(LEXER_ERROR, "Unknown command");
+        parser.skipCommand();
         return NULL;
     }
 }
 
 Renderer *Compiler::compileBlock() {
+    const Word savedIndent = parser.startBlock();
     std::vector<Renderer *> renderers;
-    while (!parser.endOfBlock()) {
+    while (parser.inBlock()) {
+        printf("add renderer to block\n");
         renderers.push_back(compileCommand());
+        if (renderers.size() > 3) break;
     }
-    parser.endCommand();
+    printf("block with %d renderers\n", (int) renderers.size());
+    parser.endBlock(savedIndent);
     return new BlockRenderer(renderers);
 }
 
@@ -40,9 +46,9 @@ Renderer *Compiler::compileSolid() {
 
 Renderer *Compiler::compileDots() {
     std::vector<RGBA> colors;
-    int spacing = parser.getInt();
+    int spacing = parser.getInteger();
     colors.push_back(parser.getColor());
-    while (!parser.endOfCommand()) {
+    while (parser.inCommand()) {
         colors.push_back(parser.getColor());
     }
     parser.endCommand();

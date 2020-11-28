@@ -6,17 +6,30 @@
 #include <stdio.h>
 #include <unistd.h>
 
-Parser::Parser(const char *sourceName, const char *pattern) : lexer(sourceName, pattern) {
-    word = NULL;
+#define printf(fmt, ...) {}
+
+Parser::Parser(const char *sourceName, const char *pattern) :
+    lexer(sourceName, pattern),
+    indent(lexer.peek())
+{
+    rewound = false;
 }
 
-const Word &Parser::getCommand() {
-    const Word &command = lexer.getWord();
-    if (!command.isString()) {
-        lexer.ungetWord();
-        reportError(LEXER_ERROR, "expected command");
+const Word &Parser::next() {
+    if (rewound) {
+        rewound = false;
+        return lexer.peek();
     }
-    return command;
+    return lexer.next();
+}
+
+const Word &Parser::peeknext() {
+    rewound = true;
+    return lexer.next();
+}
+
+const Word &Parser::peek() {
+    return lexer.peek();
 }
 
 int Parser::hexValue(char ch) {
@@ -26,17 +39,33 @@ int Parser::hexValue(char ch) {
     return 0;
 }
 
-int Parser::getInt() {
-    const Word &word = lexer.getWord();
+const Word &Parser::getCommand() {
+    const Word &command = next();
+    if (!command.isString()) {
+        reportError(LEXER_ERROR, "Expected command");
+    }
+    return command;
+}
+
+bool Parser::inCommand() {
+    const Word &word = peeknext();
+    if (!word.isEOL()) return true;
+    printf("current indent "); for (int p = 0; char ch = word[p];   p++) printf("1"); printf("\n");
+    printf("prior   indent "); for (int p = 0; char ch = indent[p]; p++) printf("1"); printf("\n");
+    if (word > indent) return true;
+    return false;
+}
+
+int Parser::getInteger() {
+    const Word &word = next();
     if (!word.isString() || !isdigit(word[0])) {
-        lexer.ungetWord();
-        reportError(LEXER_ERROR, "expected integer");
+        reportError(LEXER_ERROR, "Expected integer");
         return 0;
     }
     int value = 0;
     for (int i = 0; const char ch = word[i]; i++) {
         if (!isdigit(ch)) {
-            reportError(LEXER_ERROR, "invalid digit in number constant");
+            reportError(LEXER_ERROR, "Invalid digit in number constant");
             return 0;
         }
         value = value * 10 + (ch - '0');
@@ -45,10 +74,9 @@ int Parser::getInt() {
 }
 
 RGBA Parser::getColor() {
-    const Word &word = lexer.getWord();
+    const Word &word = next();
     if (!word.isString() || word[0] != '#') {
-        lexer.ungetWord();
-        reportError(LEXER_ERROR, "expected color");
+        reportError(LEXER_ERROR, "Expected color");
         return RGBA_NULL;
     }
     int len = 0;
@@ -57,11 +85,11 @@ RGBA Parser::getColor() {
         if (ch >= '0' && ch <= '9') continue;
         if (ch >= 'a' && ch <= 'f') continue;
         if (ch >= 'A' && ch <= 'F') continue;
-        reportError(LEXER_ERROR, "color constant must only contain hex digits");
+        reportError(LEXER_ERROR, "Color constant must only contain hex digits");
         return RGBA_NULL;
     }
     if (len < 3 || len > 8 || len == 5 || len == 7) {
-        reportError(LEXER_ERROR, "invalid number of digits in color constant");
+        reportError(LEXER_ERROR, "Invalid number of digits in color constant");
         return RGBA_NULL;
     }
     uint8_t r, g, b, a;
@@ -82,22 +110,52 @@ RGBA Parser::getColor() {
     return (r << 24) | (g << 16) | (b << 8) | a;
 }
 
-bool Parser::endOfBlock() {
-    const Word &word = lexer.getWord();
-    lexer.ungetWord();
-    return word.isEOS();
-}
-
-bool Parser::endOfCommand() {
-    const Word &word = lexer.getWord();
-    lexer.ungetWord();
-    return word.isEOC();
+bool Parser::isEOC(const Word &word) {
+    if (!word.isEOL()) return false;
+    if (word == indent) return true;
+    if (word < indent) return true;
+    if (word > indent) return false;
+    reportError(LEXER_ERROR, "Inconsistent whitespace used for indentation");
+    return true;
 }
 
 void Parser::endCommand() {
-    const Word &word = lexer.getWord();
-    if (!word.isEOC()) {
-        reportError(LEXER_ERROR, "extra arguments");
+    const Word &word = next();
+    if (!isEOC(word)) {
+        reportError(LEXER_ERROR, "Extra arguments");
+        skipCommand();
     }
-    while (!lexer.getWord().isEOC()) {}
+}
+
+void Parser::skipCommand() {
+    while (!isEOC(next())) {
+        next();
+    }
+}
+
+bool Parser::inBlock() {
+    const Word &word = peek();
+    if (!word.isEOL()) {
+        reportError(LEXER_FATAL, "Compiler tested for block here");
+        return true;
+    }
+    if (word.isEOF()) return false;
+    printf("current indent "); for (int p = 0; char ch = word[p];   p++) printf("1"); printf("\n");
+    printf("prior   indent "); for (int p = 0; char ch = indent[p]; p++) printf("1"); printf("\n");
+    return word >= indent;
+}
+
+const Word Parser::startBlock() {
+    const Word savedIndent = indent;
+    const Word &word = peek();
+    if (!word.isEOL()) {
+        reportError(LEXER_FATAL, "Compiler believes a block starts here");
+        return savedIndent;
+    }
+    indent = word;
+    return savedIndent;
+}
+
+void Parser::endBlock(const Word &savedIndent) {
+    indent = savedIndent;
 }
