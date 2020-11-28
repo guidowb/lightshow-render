@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#define printf(fmt, ...) {}
+//#define printf(fmt, ...) {}
 
 Parser::Parser(const char *sourceName, const char *pattern) :
     lexer(sourceName, pattern),
@@ -50,8 +50,7 @@ const Word &Parser::getCommand() {
 bool Parser::inCommand() {
     const Word &word = peeknext();
     if (!word.isEOL()) return true;
-    printf("current indent "); for (int p = 0; char ch = word[p];   p++) printf("1"); printf("\n");
-    printf("prior   indent "); for (int p = 0; char ch = indent[p]; p++) printf("1"); printf("\n");
+    printf("inCommand - indent %d (was %d)\n", word.length(), indent.length());
     if (word > indent) return true;
     return false;
 }
@@ -140,8 +139,7 @@ bool Parser::inBlock() {
         return true;
     }
     if (word.isEOF()) return false;
-    printf("current indent "); for (int p = 0; char ch = word[p];   p++) printf("1"); printf("\n");
-    printf("prior   indent "); for (int p = 0; char ch = indent[p]; p++) printf("1"); printf("\n");
+    printf("inBlock - indent %d (was %d)\n", word.length(), indent.length());
     return word >= indent;
 }
 
@@ -152,6 +150,7 @@ const Word Parser::startBlock() {
         reportError(LEXER_FATAL, "Compiler believes a block starts here");
         return savedIndent;
     }
+    printf("startBlock - indent %d (was %d)\n", word.length(), indent.length());
     indent = word;
     return savedIndent;
 }

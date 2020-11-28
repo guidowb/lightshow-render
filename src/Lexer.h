@@ -28,6 +28,7 @@ public:
     bool operator>(const Word &other) const;
     bool operator>=(const Word &other) const;
     const char operator[](const int index) const;
+    int length() const { return len; }
 
 private:
     const char *start;

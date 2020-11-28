@@ -17,6 +17,8 @@ class ParserTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST( testShortRGBA );
     CPPUNIT_TEST( testLongRGB );
     CPPUNIT_TEST( testLongRGBA );
+    CPPUNIT_TEST( testTopLevelBlock );
+    CPPUNIT_TEST( testNestedBlock );
     CPPUNIT_TEST_SUITE_END();
 
     void testSimpleCommand() {
@@ -84,6 +86,37 @@ class ParserTests : public CppUnit::TestFixture  {
     void testLongRGBA() {
         Parser parser("ParserTests::testLongRGBA", "#09ABCDEF");
         CPPUNIT_ASSERT_EQUAL((uint32_t) 0x09ABCDEF, parser.getColor());
+        CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
+    }
+
+    void testTopLevelBlock() {
+        Parser parser("ParserTests::testTopLevelBlock", "command1\ncommand2\ncommand3");
+        Word indent = parser.startBlock();
+        CPPUNIT_ASSERT(parser.inBlock());
+        CPPUNIT_ASSERT(parser.getCommand() == "command1"); parser.endCommand();
+        CPPUNIT_ASSERT(parser.inBlock());
+        CPPUNIT_ASSERT(parser.getCommand() == "command2"); parser.endCommand();
+        CPPUNIT_ASSERT(parser.inBlock());
+        CPPUNIT_ASSERT(parser.getCommand() == "command3"); parser.endCommand();
+        CPPUNIT_ASSERT(!parser.inBlock());
+        CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
+    }
+
+    void testNestedBlock() {
+        Parser parser("ParserTests::testNestedBlock", "command1\n  command2\n  command3\ncommand4");
+        CPPUNIT_ASSERT(parser.inBlock());
+        CPPUNIT_ASSERT(parser.getCommand() == "command1"); parser.endCommand();
+        //CPPUNIT_ASSERT(parser.isBlock());
+        Word indent = parser.startBlock();
+        CPPUNIT_ASSERT(parser.inBlock());
+        CPPUNIT_ASSERT(parser.getCommand() == "command2"); parser.endCommand();
+        CPPUNIT_ASSERT(parser.inBlock());
+        CPPUNIT_ASSERT(parser.getCommand() == "command3"); parser.endCommand();
+        CPPUNIT_ASSERT(!parser.inBlock());
+        parser.endBlock(indent);
+        CPPUNIT_ASSERT(parser.inBlock());
+        CPPUNIT_ASSERT(parser.getCommand() == "command4"); parser.endCommand();
+        CPPUNIT_ASSERT(!parser.inBlock());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }
 };

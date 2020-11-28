@@ -100,6 +100,7 @@ bool Lexer::skipWhitespace() {
     while (true) {
         switch (*position) {
         case '\0':
+            word.reset(position);
             word.m_isEOL = true;
             word.m_isEOF = true;
             return true;
