@@ -105,8 +105,8 @@ class ParserTests : public CppUnit::TestFixture  {
     void testNestedBlock() {
         Parser parser("ParserTests::testNestedBlock", "command1\n  command2\n  command3\ncommand4");
         CPPUNIT_ASSERT(parser.inBlock());
-        CPPUNIT_ASSERT(parser.getCommand() == "command1"); parser.endCommand();
-        //CPPUNIT_ASSERT(parser.isBlock());
+        CPPUNIT_ASSERT(parser.getCommand() == "command1");
+        CPPUNIT_ASSERT(parser.hasBlock());
         Word indent = parser.startBlock();
         CPPUNIT_ASSERT(parser.inBlock());
         CPPUNIT_ASSERT(parser.getCommand() == "command2"); parser.endCommand();

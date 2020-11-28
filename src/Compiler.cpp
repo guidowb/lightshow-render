@@ -48,7 +48,7 @@ Renderer *Compiler::compileDots() {
     std::vector<RGBA> colors;
     int spacing = parser.getInteger();
     colors.push_back(parser.getColor());
-    while (parser.inCommand()) {
+    while (parser.hasArgument()) {
         colors.push_back(parser.getColor());
     }
     parser.endCommand();

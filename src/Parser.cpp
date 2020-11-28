@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-//#define printf(fmt, ...) {}
+#define printf(fmt, ...) {}
 
 Parser::Parser(const char *sourceName, const char *pattern) :
     lexer(sourceName, pattern),
@@ -47,7 +47,7 @@ const Word &Parser::getCommand() {
     return command;
 }
 
-bool Parser::inCommand() {
+bool Parser::hasArgument() {
     const Word &word = peeknext();
     if (!word.isEOL()) return true;
     printf("inCommand - indent %d (was %d)\n", word.length(), indent.length());
@@ -130,6 +130,15 @@ void Parser::skipCommand() {
     while (!isEOC(next())) {
         next();
     }
+}
+
+bool Parser::hasBlock() {
+    const Word &word = peeknext();
+    if (!word.isEOL()) return false;
+    printf("hasBlock - indent %d (was %d)\n", word.length(), indent.length());
+    if (word <= indent) return false;
+    next();
+    return true;
 }
 
 bool Parser::inBlock() {

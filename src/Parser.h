@@ -19,10 +19,11 @@ public:
     const Word &getCommand();
     int  getInteger();
     RGBA getColor();
-    bool inCommand();
+    bool hasArgument();
     void endCommand();
     void skipCommand();
     const Word startBlock();
+    bool hasBlock();
     bool inBlock();
     void endBlock(const Word &indent);
 

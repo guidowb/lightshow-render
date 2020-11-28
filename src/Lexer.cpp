@@ -64,6 +64,10 @@ bool Word::operator>=(const Word &other) const {
     return !(*this < other);
 }
 
+bool Word::operator<=(const Word &other) const {
+    return !(*this > other);
+}
+
 const char Word::operator[](const int index) const {
     if (index >= len) return '\0';
     else return start[index];
