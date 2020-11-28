@@ -21,7 +21,7 @@ Renderer *Compiler::compileCommand() {
     else {
         parser.reportError(LEXER_ERROR, "Unknown command");
         parser.skipCommand();
-        return NULL;
+        return new NullRenderer();
     }
 }
 

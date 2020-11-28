@@ -1,8 +1,10 @@
 #include "Renderers.h"
 
-Renderer::~Renderer() {
+Renderer::~Renderer() {}
 
-}
+NullRenderer::NullRenderer() {}
+
+void NullRenderer::render(Canvas *canvas) {}
 
 BlockRenderer::BlockRenderer(std::vector<Renderer *> &renderers) {
     this->nrenderers = renderers.size();

@@ -17,6 +17,12 @@ public:
     virtual void render(Canvas *canvas) = 0;
 };
 
+class NullRenderer : public Renderer {
+public:
+    NullRenderer();
+    virtual void render(Canvas *canvas);
+};
+
 class BlockRenderer : public Renderer {
 public:
     BlockRenderer(std::vector<Renderer *> &renderers);
