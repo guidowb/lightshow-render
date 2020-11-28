@@ -50,8 +50,6 @@ const Word &Parser::getCommand() {
 bool Parser::hasArgument() {
     const Word &word = peeknext();
     if (!word.isEOL()) return true;
-    printf("inCommand - indent %d (was %d)\n", word.length(), indent.length());
-    if (word > indent) return true;
     return false;
 }
 
@@ -120,7 +118,7 @@ bool Parser::isEOC(const Word &word) {
 
 void Parser::endCommand() {
     const Word &word = next();
-    if (!isEOC(word)) {
+    if (!isEOC(word) || word > indent) {
         reportError(LEXER_ERROR, "Extra arguments");
         skipCommand();
     }
