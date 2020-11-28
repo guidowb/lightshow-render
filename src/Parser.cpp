@@ -118,16 +118,18 @@ bool Parser::isEOC(const Word &word) {
 
 void Parser::endCommand() {
     const Word &word = next();
-    if (!isEOC(word) || word > indent) {
+    if (!word.isEOL()) {
         reportError(LEXER_ERROR, "Extra arguments");
+        skipCommand();
+    }
+    else if (word > indent) {
+        reportError(LEXER_ERROR, "Unexpected block");
         skipCommand();
     }
 }
 
 void Parser::skipCommand() {
-    while (!isEOC(next())) {
-        next();
-    }
+    while (!isEOC(next())) {}
 }
 
 bool Parser::hasBlock() {

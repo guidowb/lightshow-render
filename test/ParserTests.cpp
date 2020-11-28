@@ -19,6 +19,7 @@ class ParserTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST( testLongRGBA );
     CPPUNIT_TEST( testTopLevelBlock );
     CPPUNIT_TEST( testNestedBlock );
+    CPPUNIT_TEST( testUnexpectedBlock );
     CPPUNIT_TEST_SUITE_END();
 
     void testSimpleCommand() {
@@ -118,5 +119,14 @@ class ParserTests : public CppUnit::TestFixture  {
         CPPUNIT_ASSERT(parser.getCommand() == "command4"); parser.endCommand();
         CPPUNIT_ASSERT(!parser.inBlock());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
+    }
+
+    void testUnexpectedBlock() {
+        Parser parser("ParserTests::testUnexpectedBlock", "command1\n  command2\ncommand3");
+        CPPUNIT_ASSERT(parser.inBlock());
+        CPPUNIT_ASSERT(parser.getCommand() == "command1");
+        parser.endCommand();
+        CPPUNIT_ASSERT(parser.getCommand() == "command3");
+        CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());
     }
 };
