@@ -1,7 +1,6 @@
-#include "LightShow.h"
-
 #include <stdlib.h>
 
+#include "LightShow.h"
 #include "Compiler.h"
 
 bool render(const char *sourceName, const char *pattern, Canvas *canvas) {

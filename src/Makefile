@@ -30,7 +30,7 @@ $(LIB): $(OBJS)
 	g++ -g -O -c $<
 
 Lexer.cpp: Lexer.h
-Parser.cpp: Parser.h Lexer.h
+Parser.cpp: Parser.h Lexer.h LightShow.h
 Compiler.cpp: Compiler.h Parser.h LightShow.h Renderers.h
 Renderers.cpp: Renderers.h LightShow.h
 LightShow.cpp: LightShow.h Compiler.h

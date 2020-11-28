@@ -49,19 +49,11 @@ method on the root of the renderer tree.
 The `Compiler` uses a `Parser`, and it uses a `Lexer`, to interpret the
 pattern language.
 
-### Lexer
-
-The lexer tracks the current word. Upon startup, the first word returned
-represents the whitespace up to the first non-whitespace word.
-
-### Parser
-
-
 ## Testing
 
 ### Unit testing
 
-The lightdow-render library is test driven and comes with cppunit tests.
+The lightshow-render library is test driven and comes with cppunit tests.
 Unit tests cover everything except renderer output (as tests probing all pixels
 for correct values would be really expensive to maintain).
 Rendering is instead covered by visual testing - below.
