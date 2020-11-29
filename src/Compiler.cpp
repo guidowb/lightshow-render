@@ -18,6 +18,7 @@ Renderer *Compiler::compileCommand() {
     const Word &command = parser.getCommand();
     if (command == "solid") return compileSolid();
     else if (command == "dots") return compileDots();
+    else if (command == "twinkle") return compileTwinkle();
     else {
         parser.reportError(LEXER_ERROR, "Unknown command");
         parser.skipCommand();
@@ -53,4 +54,10 @@ Renderer *Compiler::compileDots() {
     }
     parser.endCommand();
     return new DotsRenderer(spacing, colors);
+}
+
+Renderer *Compiler::compileTwinkle() {
+    RGBA color = parser.getColor();
+    parser.endCommand();
+    return new TwinkleRenderer(color);
 }

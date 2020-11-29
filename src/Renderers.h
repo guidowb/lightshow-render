@@ -55,4 +55,16 @@ private:
     RGBA *color;
 };
 
+class TwinkleRenderer : public Renderer {
+public:
+    TwinkleRenderer(RGBA color);
+    virtual void render(Canvas *canvas);
+
+private:
+	long cycle_total;
+	long cycle_brighten;
+	long cycle_dim;
+	RGBA color;
+};
+
 #endif /* Renderers_h */

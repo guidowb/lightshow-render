@@ -26,6 +26,7 @@ private:
     Renderer *compileCommand();
     Renderer *compileSolid();
     Renderer *compileDots();
+    Renderer *compileTwinkle();
 };
 
 #endif /* Compiler_h */
