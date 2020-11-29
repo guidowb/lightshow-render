@@ -17,14 +17,14 @@ Commands are separated by line breaks.
 solid <color>
 dots <spacing> <color>...
 twinkle <color> [<twinkles-per-minute>]
+segment <from> <to> [<command>|<block>]
+gradient <color> <color>...
 ```
 
 ### Planned Patterns
 
 ```text
 dashes <length> <color>...
-segment <from> <to> [<command>|<block>]
-gradient <color> <color>...
 time <from> <to> [<command>|<block>]
 date <from> <to> [<command>|<block>]
 brightness <percentage> [<command>|<block>]

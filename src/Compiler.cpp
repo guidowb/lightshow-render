@@ -20,6 +20,7 @@ Renderer *Compiler::compileCommand() {
     else if (command == "dots") return compileDots();
     else if (command == "twinkle") return compileTwinkle();
     else if (command == "segment") return compileSegment();
+    else if (command == "gradient") return compileGradient();
     else {
         parser.reportError(LEXER_ERROR, "Unknown command");
         parser.skipCommand();
@@ -75,4 +76,15 @@ Renderer *Compiler::compileSegment() {
     int to = parser.getInteger();
     Renderer *renderer = compileCommandOrBlock();
     return new SegmentRenderer(from, to, renderer);
+}
+
+Renderer *Compiler::compileGradient() {
+    std::vector<RGBA> colors;
+    colors.push_back(parser.getColor());
+    colors.push_back(parser.getColor());
+    while (parser.hasArgument()) {
+        colors.push_back(parser.getColor());
+    }
+    parser.endCommand();
+    return new GradientRenderer(colors);
 }

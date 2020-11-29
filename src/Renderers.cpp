@@ -146,3 +146,39 @@ void SegmentRenderer::render(Canvas *canvas) {
     SegmentCanvas segment(canvas, from, to);
     renderer->render(&segment);
 }
+
+GradientRenderer::GradientRenderer(std::vector<RGBA> &colors) {
+    this->ncolors = colors.size();
+    this->color = new RGBA[this->ncolors];
+    for (int p = 0; p < this->ncolors; p++) this->color[p] = colors[p];
+}
+
+GradientRenderer::~GradientRenderer() {
+    delete this->color;
+}
+
+void GradientRenderer::render(Canvas *canvas) {
+    int segments = ncolors - 1;
+    int interval = canvas->getSize() / segments;
+    for (int p = 0; p < canvas->getSize(); p++) {
+        int i1 = (p / interval) % ncolors;
+        int i2 = (i1 + 1) % ncolors;
+        int fraction = p % interval;
+		RGBA c1 = color[i1];
+        uint8_t r1 = (c1 >> 24) & 0x0ff;
+        uint8_t g1 = (c1 >> 16) & 0x0ff;
+        uint8_t b1 = (c1 >>  8) & 0x0ff;
+        uint8_t a1 = (c1      ) & 0x0ff;
+		RGBA c2 = color[i2];
+        uint8_t r2 = (c2 >> 24) & 0x0ff;
+        uint8_t g2 = (c2 >> 16) & 0x0ff;
+        uint8_t b2 = (c2 >>  8) & 0x0ff;
+        uint8_t a2 = (c2      ) & 0x0ff;
+        int r = (r1 * (interval - fraction) + r2 * fraction) / interval;
+        int g = (g1 * (interval - fraction) + g2 * fraction) / interval;
+        int b = (b1 * (interval - fraction) + b2 * fraction) / interval;
+        int a = (a1 * (interval - fraction) + a2 * fraction) / interval;
+        RGBA c3 = (r << 24) + (g << 16) + (b << 8) + a;
+        canvas->setPixel(p, c3);
+    }
+}

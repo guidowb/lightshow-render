@@ -73,4 +73,15 @@ private:
     Renderer *renderer;
 };
 
+class GradientRenderer : public Renderer {
+public:
+    GradientRenderer(std::vector<RGBA> &colors);
+    virtual ~GradientRenderer();
+    virtual void render(Canvas *canvas);
+
+private:
+    int ncolors;
+    RGBA *color;
+};
+
 #endif /* Renderers_h */

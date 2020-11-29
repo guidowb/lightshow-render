@@ -29,6 +29,7 @@ private:
     Renderer *compileDots();
     Renderer *compileTwinkle();
     Renderer *compileSegment();
+    Renderer *compileGradient();
 };
 
 #endif /* Compiler_h */
