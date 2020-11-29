@@ -16,6 +16,7 @@ Commands are separated by line breaks.
 <color>
 solid <color>
 dots <spacing> <color>...
+twinkle <color> [<twinkles-per-minute>]
 ```
 
 ### Planned Enhancements
