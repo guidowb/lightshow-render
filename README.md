@@ -19,6 +19,21 @@ dots <spacing> <color>...
 twinkle <color> [<twinkles-per-minute>]
 ```
 
+### Planned Patterns
+
+```text
+dashes <length> <color>...
+segment <from> <to> [<command>|<block>]
+gradient <color> <color>...
+time <from> <to> [<command>|<block>]
+date <from> <to> [<command>|<block>]
+brightness <percentage> [<command>|<block>]
+gamma [<correction>] [<command>|<block>]
+opacity [<level>] [<command>|<block>]
+bounce <size> <speed> [<command>|<block>]
+wrap <size> <speed> [<command>|<block>]
+```
+
 ### Planned Enhancements
 
 To reduce the need for deep nesting in many common cases,

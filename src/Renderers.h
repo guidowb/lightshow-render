@@ -11,12 +11,6 @@
 #include "LightShow.h"
 #include <vector>
 
-class Renderer {
-public:
-    virtual ~Renderer();
-    virtual void render(Canvas *canvas) = 0;
-};
-
 class NullRenderer : public Renderer {
 public:
     NullRenderer();

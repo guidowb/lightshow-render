@@ -4,10 +4,6 @@
 #include "ParserTests.cpp"
 #include "CompilerTests.cpp"
 
-long millis() {
-  return 0;
-}
-
 int main( int argc, char **argv)
 {
   CppUnit::TextUi::TestRunner runner;

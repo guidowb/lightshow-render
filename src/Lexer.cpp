@@ -41,31 +41,52 @@ void Word::extend() {
     this->len++;
 }
 
+int Word::compare(const char other[]) const {
+    for (int c = 0; true; c++) {
+        if (c == len && other[c] == '\0') return 0;
+        if (c == len) return -1;
+        if (other[c] == '\0') return 1;
+        if (start[c] == other[c]) continue;
+        if (start[c] < other[c]) return -2;
+        else return 2;
+    }
+}
+
+int Word::compare(const Word &other) const {
+    for (int c = 0; true; c++) {
+        if (c == len && c == other.len) return 0;
+        if (c == len) return -1;
+        if (c == other.len) return 1;
+        if (start[c] == other[c]) continue;
+        if (start[c] < other[c]) return -2;
+        else return 2;
+    }
+}
+
 bool Word::operator==(const char other[]) const {
-    return !strncmp(this->start, other, this->len) && other[this->len] == '\0';
+    return compare(other) == 0;
 }
 
 bool Word::operator==(const Word &other) const {
-    if (this->len != other.len) return false;
-    return !strncmp(this->start, other.start, this->len);
+    return compare(other) == 0;
 }
 
 bool Word::operator>(const Word &other) const {
-    if (this->len <= other.len) return false;
-    return !strncmp(this->start, other.start, other.len);
+    return compare(other) == 1;
 }
 
 bool Word::operator<(const Word &other) const {
-    if (this->len >= other.len) return false;
-    return !strncmp(this->start, other.start, this->len);
+    return compare(other) == -1;
 }
 
 bool Word::operator>=(const Word &other) const {
-    return !(*this < other);
+    int result = compare(other);
+    return result == 0 || result == 1;
 }
 
 bool Word::operator<=(const Word &other) const {
-    return !(*this > other);
+    int result = compare(other);
+    return result == 0 || result == -1;
 }
 
 const char Word::operator[](const int index) const {

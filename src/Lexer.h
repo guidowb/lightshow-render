@@ -41,6 +41,8 @@ private:
     friend class Lexer;
     void reset(const char *start);
     void extend();
+    int compare(const Word &other) const;
+    int compare(const char other[]) const;
 };
 
 class Lexer {

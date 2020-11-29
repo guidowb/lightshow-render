@@ -3,7 +3,7 @@
 #include <math.h>
 #include <sys/time.h>
 
-extern long millis();
+#define printf(fmt, ...) {}
 
 Renderer::~Renderer() {}
 
@@ -101,7 +101,7 @@ void TwinkleRenderer::render(Canvas *canvas) {
 
     long cycle_total = (60000 * canvas->getSize()) / this->twinkles_per_minute;
     for (int p = 0; p < canvas->getSize(); p++) {
-        long ptime = (millis() + random(p)) % cycle_total;
+        long ptime = (canvas->getTime() + random(p)) % cycle_total;
         printf("twinkle - pixel %d time %ld\n", p, ptime);
         if (ptime < cycle_brighten) {
             printf("twinkle - pixel %d brightening\n", p);
