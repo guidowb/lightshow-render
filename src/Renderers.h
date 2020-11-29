@@ -61,4 +61,16 @@ private:
 	RGBA color;
 };
 
+class SegmentRenderer : public Renderer {
+public:
+    SegmentRenderer(int from, int to, Renderer *renderer);
+    virtual ~SegmentRenderer();
+    virtual void render(Canvas *canvas);
+
+private:
+    int from;
+    int to;
+    Renderer *renderer;
+};
+
 #endif /* Renderers_h */

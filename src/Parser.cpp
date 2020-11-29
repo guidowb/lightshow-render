@@ -24,6 +24,7 @@ const Word &Parser::next() {
 }
 
 const Word &Parser::peeknext() {
+    if (rewound) return lexer.peek();
     rewound = true;
     return lexer.next();
 }
@@ -41,7 +42,7 @@ int Parser::hexValue(char ch) {
 
 const Word &Parser::getCommand() {
     const Word &command = next();
-    if (!command.isString()) {
+    if (command.isEOL()) {
         reportError(LEXER_ERROR, "Expected command");
     }
     return command;
@@ -136,7 +137,7 @@ bool Parser::hasBlock() {
     const Word &word = peeknext();
     if (!word.isEOL()) return false;
     printf("hasBlock - indent %d (was %d)\n", word.length(), indent.length());
-    if (word <= indent) return false;
+    if (word < indent) return false;
     next();
     return true;
 }

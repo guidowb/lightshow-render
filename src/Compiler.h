@@ -24,9 +24,11 @@ private:
 private:
     Renderer *compileBlock();
     Renderer *compileCommand();
+    Renderer *compileCommandOrBlock();
     Renderer *compileSolid();
     Renderer *compileDots();
     Renderer *compileTwinkle();
+    Renderer *compileSegment();
 };
 
 #endif /* Compiler_h */

@@ -1,7 +1,6 @@
 #include "Renderers.h"
 
 #include <math.h>
-#include <sys/time.h>
 
 #define printf(fmt, ...) {}
 
@@ -12,8 +11,8 @@ Renderer::~Renderer() {}
 // that, when we calculate consecutive frames, we get identical "random"
 // values for each pixel.
 
-static long random(long seed) {
-	long r = seed * 179426323.0;
+static uint32_t random(uint32_t seed) {
+	uint32_t r = seed * 179426323;
     printf("random %ld\n", r);
     return r;
 }
@@ -99,9 +98,9 @@ TwinkleRenderer::TwinkleRenderer(RGBA color, int tpm) {
 
 void TwinkleRenderer::render(Canvas *canvas) {
 
-    long cycle_total = (60000 * canvas->getSize()) / this->twinkles_per_minute;
+    uint32_t cycle_total = (60000 * canvas->getSize()) / this->twinkles_per_minute;
     for (int p = 0; p < canvas->getSize(); p++) {
-        long ptime = (canvas->getTime() + random(p)) % cycle_total;
+        uint32_t ptime = (canvas->getTime() + random(p)) % cycle_total;
         printf("twinkle - pixel %d time %ld\n", p, ptime);
         if (ptime < cycle_brighten) {
             printf("twinkle - pixel %d brightening\n", p);
@@ -117,4 +116,33 @@ void TwinkleRenderer::render(Canvas *canvas) {
             canvas->setPixel(p, color);
         }
     }
+}
+
+SegmentRenderer::SegmentRenderer(int from, int to, Renderer *renderer) {
+    this->from  = from;
+    this->to = to;
+    this->renderer = renderer;
+}
+
+SegmentRenderer::~SegmentRenderer() {
+    delete this->renderer;
+}
+
+void SegmentRenderer::render(Canvas *canvas) {
+
+    class SegmentCanvas : public Canvas {
+    public:
+        SegmentCanvas(Canvas *parent, int from, int to) { this->parent = parent; this->from = from; this->to = to; }
+        virtual int getSize() { return to - from; }
+        virtual void setPixel(int pixel, RGBA color) { parent->setPixel(pixel + from, color); }
+        virtual long getTime() { return parent->getTime(); }
+
+    private:
+        Canvas *parent;
+        int from;
+        int to;
+    };
+
+    SegmentCanvas segment(canvas, from, to);
+    renderer->render(&segment);
 }

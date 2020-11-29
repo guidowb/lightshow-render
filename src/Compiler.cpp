@@ -19,6 +19,7 @@ Renderer *Compiler::compileCommand() {
     if (command == "solid") return compileSolid();
     else if (command == "dots") return compileDots();
     else if (command == "twinkle") return compileTwinkle();
+    else if (command == "segment") return compileSegment();
     else {
         parser.reportError(LEXER_ERROR, "Unknown command");
         parser.skipCommand();
@@ -37,6 +38,12 @@ Renderer *Compiler::compileBlock() {
     printf("block with %d renderers\n", (int) renderers.size());
     parser.endBlock(savedIndent);
     return new BlockRenderer(renderers);
+}
+
+Renderer *Compiler::compileCommandOrBlock() {
+    if (parser.hasArgument()) return compileCommand();
+    if (parser.hasBlock()) return compileBlock();
+    return compileBlock();
 }
 
 Renderer *Compiler::compileSolid() {
@@ -61,4 +68,11 @@ Renderer *Compiler::compileTwinkle() {
     int tpm = parser.hasArgument() ? parser.getInteger() : 0;
     parser.endCommand();
     return new TwinkleRenderer(color, tpm);
+}
+
+Renderer *Compiler::compileSegment() {
+    int from = parser.getInteger();
+    int to = parser.getInteger();
+    Renderer *renderer = compileCommandOrBlock();
+    return new SegmentRenderer(from, to, renderer);
 }
