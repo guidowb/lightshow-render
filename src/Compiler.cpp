@@ -58,6 +58,7 @@ Renderer *Compiler::compileDots() {
 
 Renderer *Compiler::compileTwinkle() {
     RGBA color = parser.getColor();
+    int tpm = parser.hasArgument() ? parser.getInteger() : 0;
     parser.endCommand();
-    return new TwinkleRenderer(color);
+    return new TwinkleRenderer(color, tpm);
 }

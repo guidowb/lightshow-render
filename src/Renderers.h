@@ -57,11 +57,11 @@ private:
 
 class TwinkleRenderer : public Renderer {
 public:
-    TwinkleRenderer(RGBA color);
+    TwinkleRenderer(RGBA color, int tpm);
     virtual void render(Canvas *canvas);
 
 private:
-	long cycle_total;
+	long twinkles_per_minute;
 	long cycle_brighten;
 	long cycle_dim;
 	RGBA color;
