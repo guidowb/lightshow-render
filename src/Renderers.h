@@ -8,8 +8,27 @@
 #ifndef Renderers_h
 #define Renderers_h
 
+#include <stdlib.h>
 #include "LightShow.h"
-#include <vector>
+
+template<typename T> class Vector {
+public:
+    Vector(int capacity) {
+        this->capacity = capacity;
+        this->count = 0;
+        this->elements = new T[capacity+1];
+    }
+    ~Vector() { delete elements; }
+
+    bool append(T element) { if (count >= capacity) return false; elements[count++] = element; return true; }
+    T operator[](int index) { if (index < count) return elements[index]; return elements[capacity]; }
+    int size() { return count; }
+
+private:
+    int count;
+    int capacity;
+    T *elements;
+};
 
 class NullRenderer : public Renderer {
 public:
@@ -19,7 +38,7 @@ public:
 
 class BlockRenderer : public Renderer {
 public:
-    BlockRenderer(std::vector<Renderer *> &renderers);
+    BlockRenderer(Vector<Renderer *> &renderers);
     virtual ~BlockRenderer();
     virtual void render(Canvas *canvas);
 
@@ -39,7 +58,7 @@ private:
 
 class DotsRenderer : public Renderer {
 public:
-    DotsRenderer(int spacing, std::vector<RGBA> &colors);
+    DotsRenderer(int spacing, Vector<RGBA> &colors);
     virtual ~DotsRenderer();
     virtual void render(Canvas *canvas);
 
@@ -75,7 +94,7 @@ private:
 
 class GradientRenderer : public Renderer {
 public:
-    GradientRenderer(std::vector<RGBA> &colors);
+    GradientRenderer(Vector<RGBA> &colors);
     virtual ~GradientRenderer();
     virtual void render(Canvas *canvas);
 

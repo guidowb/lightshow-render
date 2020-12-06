@@ -21,7 +21,7 @@ NullRenderer::NullRenderer() {}
 
 void NullRenderer::render(Canvas *canvas) {}
 
-BlockRenderer::BlockRenderer(std::vector<Renderer *> &renderers) {
+BlockRenderer::BlockRenderer(Vector<Renderer *> &renderers) {
     this->nrenderers = renderers.size();
     this->renderer = new Renderer *[this->nrenderers];
     for (int p = 0; p < this->nrenderers; p++) this->renderer[p] = renderers[p];
@@ -46,7 +46,7 @@ void SolidRenderer::render(Canvas *canvas) {
     for (int p = 0; p < canvas->getSize(); p++) canvas->setPixel(p, color);
 }
 
-DotsRenderer::DotsRenderer(int spacing, std::vector<RGBA> &colors) {
+DotsRenderer::DotsRenderer(int spacing, Vector<RGBA> &colors) {
     this->spacing = spacing;
     this->ncolors = colors.size();
     this->color = new RGBA[this->ncolors];
@@ -147,7 +147,7 @@ void SegmentRenderer::render(Canvas *canvas) {
     renderer->render(&segment);
 }
 
-GradientRenderer::GradientRenderer(std::vector<RGBA> &colors) {
+GradientRenderer::GradientRenderer(Vector<RGBA> &colors) {
     this->ncolors = colors.size();
     this->color = new RGBA[this->ncolors];
     for (int p = 0; p < this->ncolors; p++) this->color[p] = colors[p];

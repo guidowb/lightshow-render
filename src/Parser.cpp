@@ -90,7 +90,7 @@ RGBA Parser::getColor() {
         reportError(LEXER_ERROR, "Invalid number of digits in color constant");
         return RGBA_NULL;
     }
-    uint8_t r, g, b, a;
+    uint32_t r, g, b, a;
     if (len <= 4) {
         r = (hexValue(word[1]) << 4) + hexValue(word[1]);
         g = (hexValue(word[2]) << 4) + hexValue(word[2]);

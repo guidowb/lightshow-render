@@ -9,7 +9,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <algorithm>
 
 #define printf(fmt, ...) {}
 
@@ -162,7 +161,7 @@ const char *levelNames[] = { "OK", "INFO", "WARNING", "ERROR", "FATAL" };
 
 void Lexer::reportError(int level, const char *message) {
     const char *levelName = levelNames[level];
-    errorLevel = std::max(errorLevel, level);
+    if (level > errorLevel) errorLevel = level;
     int columnNumber = wordStart - lineStart + 1;
     fprintf(stderr, "%s:%d:%d: %s: %s\n", sourceName, lineNumber, columnNumber, levelName, message);
     const char *c = lineStart;

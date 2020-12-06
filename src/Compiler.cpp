@@ -2,7 +2,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <vector>
 
 #define printf(fmt, ...) {}
 
@@ -30,11 +29,10 @@ Renderer *Compiler::compileCommand() {
 
 Renderer *Compiler::compileBlock() {
     const Word savedIndent = parser.startBlock();
-    std::vector<Renderer *> renderers;
+    Vector<Renderer *> renderers(20);
     while (parser.inBlock()) {
         printf("add renderer to block\n");
-        renderers.push_back(compileCommand());
-        if (renderers.size() > 3) break;
+        renderers.append(compileCommand());
     }
     printf("block with %d renderers\n", (int) renderers.size());
     parser.endBlock(savedIndent);
@@ -54,11 +52,11 @@ Renderer *Compiler::compileSolid() {
 }
 
 Renderer *Compiler::compileDots() {
-    std::vector<RGBA> colors;
+    Vector<RGBA> colors(10);
     int spacing = parser.getInteger();
-    colors.push_back(parser.getColor());
+    colors.append(parser.getColor());
     while (parser.hasArgument()) {
-        colors.push_back(parser.getColor());
+        colors.append(parser.getColor());
     }
     parser.endCommand();
     return new DotsRenderer(spacing, colors);
@@ -79,11 +77,11 @@ Renderer *Compiler::compileSegment() {
 }
 
 Renderer *Compiler::compileGradient() {
-    std::vector<RGBA> colors;
-    colors.push_back(parser.getColor());
-    colors.push_back(parser.getColor());
+    Vector<RGBA> colors(10);
+    colors.append(parser.getColor());
+    colors.append(parser.getColor());
     while (parser.hasArgument()) {
-        colors.push_back(parser.getColor());
+        colors.append(parser.getColor());
     }
     parser.endCommand();
     return new GradientRenderer(colors);
