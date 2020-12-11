@@ -103,4 +103,15 @@ private:
     RGBA *color;
 };
 
+class FadeRenderer : public Renderer {
+public:
+    FadeRenderer(Renderer *before, Renderer *after);
+    virtual ~FadeRenderer();
+    virtual void render(Canvas *canvas);
+
+private:
+    Renderer *before;
+    Renderer *after;
+};
+
 #endif /* Renderers_h */

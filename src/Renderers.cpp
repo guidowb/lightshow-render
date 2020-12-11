@@ -1,8 +1,9 @@
 #include "Renderers.h"
 
 #include <math.h>
+#include <stdio.h>
 
-#define printf(fmt, ...) {}
+//#define printf(fmt, ...) {}
 
 Renderer::~Renderer() {}
 
@@ -13,7 +14,6 @@ Renderer::~Renderer() {}
 
 static uint32_t random(uint32_t seed) {
 	uint32_t r = seed * 179426323;
-    printf("random %ld\n", r);
     return r;
 }
 
@@ -41,7 +41,6 @@ SolidRenderer::SolidRenderer(RGBA color) {
 }
 
 void SolidRenderer::render(Canvas *canvas) {
-    printf("render solid");
     for (int p = 0; p < canvas->getSize(); p++) canvas->setPixel(p, color);
 }
 
@@ -57,7 +56,6 @@ DotsRenderer::~DotsRenderer() {
 }
 
 void DotsRenderer::render(Canvas *canvas) {
-    printf("render dots with %d", ncolors);
     int c = 0;
     for (int p = 0; p < canvas->getSize(); p += spacing) {
         canvas->setPixel(p, color[c]);
@@ -100,15 +98,12 @@ void TwinkleRenderer::render(Canvas *canvas) {
     uint32_t cycle_total = (60000 * canvas->getSize()) / this->twinkles_per_minute;
     for (int p = 0; p < canvas->getSize(); p++) {
         uint32_t ptime = (canvas->getTime() + random(p)) % cycle_total;
-        printf("twinkle - pixel %d time %ld\n", p, ptime);
         if (ptime < cycle_brighten) {
-            printf("twinkle - pixel %d brightening\n", p);
             int alpha = ((double) ptime / cycle_brighten) * (this->color & 0x0ff);
             RGBA color = (this->color & 0xffffff00) + alpha;
             canvas->setPixel(p, color);
         }
         else if (ptime < (cycle_dim + cycle_brighten)) {
-            printf("twinkle - pixel %d dimming\n", p);
             ptime -= cycle_brighten;
             int alpha = (1.0 - (double) ptime / cycle_dim) * (this->color & 0x0ff);
             RGBA color = (this->color & 0xffffff00) + alpha;
@@ -180,4 +175,48 @@ void GradientRenderer::render(Canvas *canvas) {
         RGBA c3 = (r << 24) + (g << 16) + (b << 8) + a;
         canvas->setPixel(p, c3);
     }
+}
+
+FadeRenderer::FadeRenderer(Renderer *before, Renderer *after) {
+    this->before = before;
+    this->after = after;
+}
+
+FadeRenderer::~FadeRenderer() {
+    if (this->before) delete this->before;
+    if (this->after)  delete this->after;
+}
+
+void FadeRenderer::render(Canvas *canvas) {
+
+    uint32_t time = canvas->getTime();
+
+    if (time > 1000) {
+        after->render(canvas);
+        return;
+    }
+
+    // TODO: If the "after" renderer has any transparency, then we can't stop rendering the
+    // "before" at the end of the fade. That's something we should consider detecting and
+    // handling more properly.
+
+    class FadeCanvas : public Canvas {
+    public:
+        FadeCanvas(Canvas *parent, uint32_t ratio) { this->parent = parent; this->ratio = ratio; }
+        virtual int getSize() { return parent->getSize(); }
+        virtual void setPixel(int pixel, RGBA color) {
+            int alpha = ((color & 0x0ff) * ratio) / 1000;
+            color = (color & 0xFFFFFF00) | (alpha & 0x0FF);
+            parent->setPixel(pixel, color);
+        }
+        virtual long getTime() { return parent->getTime(); }
+
+    private:
+        Canvas *parent;
+        long ratio;
+    };
+
+    before->render(canvas);
+    FadeCanvas faded(canvas, time);
+    after->render(&faded);
 }

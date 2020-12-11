@@ -34,6 +34,7 @@ private:
     Renderer *compileTwinkle(Renderer *currentBlock);
     Renderer *compileSegment(Renderer *currentBlock);
     Renderer *compileGradient(Renderer *currentBlock);
+    Renderer *compileFade(Renderer *currentBlock);
 };
 
 #endif /* Compiler_h */

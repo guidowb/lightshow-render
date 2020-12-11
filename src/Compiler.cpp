@@ -23,6 +23,7 @@ Renderer *Compiler::compileCommand(Renderer *currentBlock) {
     else if (command == "twinkle") return compileTwinkle(currentBlock);
     else if (command == "segment") return compileSegment(currentBlock);
     else if (command == "gradient") return compileGradient(currentBlock);
+    else if (command == "fade") return compileFade(currentBlock);
     else {
         parser.reportError(LEXER_ERROR, "Unknown command");
         parser.skipCommand();
@@ -94,4 +95,9 @@ Renderer *Compiler::compileGradient(Renderer *currentBlock) {
     }
     parser.endCommand();
     return addLayer(currentBlock, new GradientRenderer(colors));
+}
+
+Renderer *Compiler::compileFade(Renderer *currentBlock) {
+    Renderer *after = compileCapturedBlock(currentBlock);
+    return new FadeRenderer(currentBlock, after);
 }
