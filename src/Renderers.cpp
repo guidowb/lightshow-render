@@ -21,20 +21,19 @@ NullRenderer::NullRenderer() {}
 
 void NullRenderer::render(Canvas *canvas) {}
 
-BlockRenderer::BlockRenderer(Vector<Renderer *> &renderers) {
-    this->nrenderers = renderers.size();
-    this->renderer = new Renderer *[this->nrenderers];
-    for (int p = 0; p < this->nrenderers; p++) this->renderer[p] = renderers[p];
+LayeredRenderer::LayeredRenderer(Renderer *thisLayer, Renderer *nextLayer) {
+    this->thisLayer = thisLayer;
+    this->nextLayer = nextLayer;
 }
 
-BlockRenderer::~BlockRenderer() {
-    for (int p = 0; p < this->nrenderers; p++) delete this->renderer[p];
-    delete this->renderer;
+LayeredRenderer::~LayeredRenderer() {
+    if (this->thisLayer) delete this->thisLayer;
+    if (this->nextLayer) delete this->nextLayer;
 }
 
-void BlockRenderer::render(Canvas *canvas) {
-    printf("render block of %d", nrenderers);
-    for (int p = 0; p < this->nrenderers; p++) this->renderer[p]->render(canvas);
+void LayeredRenderer::render(Canvas *canvas) {
+    if (this->thisLayer) this->thisLayer->render(canvas);
+    if (this->nextLayer) this->nextLayer->render(canvas);
 }
 
 SolidRenderer::SolidRenderer(RGBA color) {

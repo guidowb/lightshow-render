@@ -22,14 +22,18 @@ private:
     Parser parser;
 
 private:
-    Renderer *compileBlock();
-    Renderer *compileCommand();
-    Renderer *compileCommandOrBlock();
-    Renderer *compileSolid();
-    Renderer *compileDots();
-    Renderer *compileTwinkle();
-    Renderer *compileSegment();
-    Renderer *compileGradient();
+    Renderer *addLayer(Renderer *currentBlock, Renderer *layer);
+
+private:
+    Renderer *compileBlock(Renderer *currentBlock);
+    Renderer *compileCapturedBlock(Renderer *currentBlock);
+    Renderer *compileSequence(Renderer *currentBlock);
+    Renderer *compileCommand(Renderer *currentBlock);
+    Renderer *compileSolid(Renderer *currentBlock);
+    Renderer *compileDots(Renderer *currentBlock);
+    Renderer *compileTwinkle(Renderer *currentBlock);
+    Renderer *compileSegment(Renderer *currentBlock);
+    Renderer *compileGradient(Renderer *currentBlock);
 };
 
 #endif /* Compiler_h */

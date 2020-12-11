@@ -30,21 +30,21 @@ private:
     T *elements;
 };
 
+class LayeredRenderer : public Renderer {
+public:
+    LayeredRenderer(Renderer *thisLayer, Renderer *nextLayer);
+    virtual ~LayeredRenderer();
+    virtual void render(Canvas *canvas);
+
+private:
+    Renderer *thisLayer;
+    Renderer *nextLayer;
+};
+
 class NullRenderer : public Renderer {
 public:
     NullRenderer();
     virtual void render(Canvas *canvas);
-};
-
-class BlockRenderer : public Renderer {
-public:
-    BlockRenderer(Vector<Renderer *> &renderers);
-    virtual ~BlockRenderer();
-    virtual void render(Canvas *canvas);
-
-private:
-    int nrenderers;
-    Renderer **renderer;
 };
 
 class SolidRenderer : public Renderer {
