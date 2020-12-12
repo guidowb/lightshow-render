@@ -115,4 +115,27 @@ private:
     uint32_t duration;
 };
 
+class AfterRenderer : public Renderer {
+public:
+    AfterRenderer(Renderer *before, Renderer *after, uint32_t duration);
+    virtual ~AfterRenderer();
+    virtual void render(Canvas *canvas);
+
+private:
+    Renderer *before;
+    Renderer *after;
+    uint32_t duration;
+};
+
+class DelayRenderer : public Renderer {
+public:
+    DelayRenderer(Renderer *block, uint32_t delay);
+    virtual ~DelayRenderer();
+    virtual void render(Canvas *canvas);
+
+private:
+    Renderer *block;
+    uint32_t delay;
+};
+
 #endif /* Renderers_h */

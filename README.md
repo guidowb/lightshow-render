@@ -7,20 +7,58 @@ nothing Arduino-specific about it).
 
 ## Pattern Language
 
-A pattern is a sequence of commands, that are executed in order to draw each
-frame of the LED string.
-Built-in patterns are specified by a reserved name, and a set of parameters.
-Commands are separated by line breaks.
+A pattern is described by a sequence of commands, that describe one or
+multiple scenes that will be displayed on the string. Scenes are separated
+by commands that describe transitions, like `fade`. Commands within a single
+scene are treated as layers, with each subsequent command drawing over the
+top of the previous command.
+
+Built-in patterns and transitions are specified by a reserved name, and a
+set of parameters. Commands are separated by line breaks.
 
 ```text
 <color>
 solid <color>
 dots <spacing> <color>...
 twinkle <color> [<twinkles-per-minute>]
-segment <from> <to> [<command>|<block>]
+segment <from> <to> <scene>
 gradient <color> <color>...
-fade <duration>
+fade <duration> <after-scene>
+after <duration> <after-scene>
 ```
+
+Commands that take a scene as argument can have that scene provided in
+one of three ways:
+
+- As a single command on the same line:
+
+    ```text
+    fade 1s solid black
+    ```
+
+- As a block following the initial command:
+
+    ```text
+    fade 1s
+        solid black
+        twinkle white
+    ```
+
+- By continuing the sequence of commands:
+
+    ```text
+    fade 1s
+    solid black
+    twinkle white
+    ```
+
+Indentation is significant and can be used to delineate blocks. But it
+is optional, and in many common cases deep indentation can be avoided by
+simply avoiding indenting blocks at all. If no indentation is used, the
+block continues until the end of its containing block.
+
+Tabs and spaces are both valid for indentation, but whichever is used,
+indentation at each level must be consistent across any given block.
 
 ### Planned Patterns
 
@@ -33,22 +71,6 @@ gamma [<correction>] [<command>|<block>]
 opacity [<level>] [<command>|<block>]
 bounce <size> <speed> [<command>|<block>]
 wrap <size> <speed> [<command>|<block>]
-```
-
-### Planned Enhancements
-
-To reduce the need for deep nesting in many common cases,
-commands that affect settings may take an optional block as argument.
-If such a block is provided, the setting will apply only to that block
-and revert to its original value after that. If no block is provided,
-the setting affects subsequent commands in the same block.
-
-```text
-brightness 80%
-solid white
-
-brightness 80%
-    solid white
 ```
 
 ## Code Structure

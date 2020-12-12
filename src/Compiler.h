@@ -25,8 +25,8 @@ private:
     Renderer *addLayer(Renderer *currentBlock, Renderer *layer);
 
 private:
-    Renderer *compileBlock(Renderer *currentBlock);
-    Renderer *compileCapturedBlock(Renderer *currentBlock);
+    Renderer *compileBlock(Renderer *currentBlock = NULL);
+    Renderer *compileCapturedBlock(Renderer *currentBlock = NULL);
     Renderer *compileSequence(Renderer *currentBlock);
     Renderer *compileCommand(Renderer *currentBlock);
     Renderer *compileSolid(Renderer *currentBlock);
@@ -35,6 +35,7 @@ private:
     Renderer *compileSegment(Renderer *currentBlock);
     Renderer *compileGradient(Renderer *currentBlock);
     Renderer *compileFade(Renderer *currentBlock);
+    Renderer *compileAfter(Renderer *currentBlock);
 };
 
 #endif /* Compiler_h */

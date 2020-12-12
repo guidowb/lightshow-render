@@ -222,3 +222,39 @@ void FadeRenderer::render(Canvas *canvas) {
     FadeCanvas faded(canvas, ratio);
     after->render(&faded);
 }
+
+AfterRenderer::AfterRenderer(Renderer *before, Renderer *after, uint32_t duration) {
+    this->before = before;
+    this->after = after;
+    this->duration = duration;
+}
+
+AfterRenderer::~AfterRenderer() {
+    // After renderers don't delete their before scene, because
+    // that scene is also referenced inside of its after scene.
+    // Thus the single delete will cause both to be cleaned up.
+    if (this->after)  delete this->after;
+}
+
+void AfterRenderer::render(Canvas *canvas) {
+
+    class AfterCanvas : public Canvas {
+    public:
+        AfterCanvas(Canvas *parent, uint32_t duration) { this->parent = parent; this->duration = duration; }
+        virtual int getSize() { return parent->getSize(); }
+        virtual void setPixel(int pixel, RGBA color) { parent->setPixel(pixel, color); }
+        virtual long getTime() { return parent->getTime() - duration; }
+
+    private:
+        Canvas *parent;
+        uint32_t duration;
+    };
+
+    uint32_t time = canvas->getTime();
+
+    before->render(canvas);
+    if (time > duration) {
+        AfterCanvas skewed(canvas, duration);
+        after->render(&skewed);
+    }
+}

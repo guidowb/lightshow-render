@@ -13,17 +13,18 @@ Renderer *Compiler::addLayer(Renderer *currentBlock, Renderer *layer) {
 }
 
 Renderer *Compiler::compile() {
-    return compileBlock(NULL);
+    return compileBlock();
 }
 
 Renderer *Compiler::compileCommand(Renderer *currentBlock) {
     const Word &command = parser.getCommand();
-    if (command == "solid") return compileSolid(currentBlock);
-    else if (command == "dots") return compileDots(currentBlock);
-    else if (command == "twinkle") return compileTwinkle(currentBlock);
-    else if (command == "segment") return compileSegment(currentBlock);
+    if      (command == "solid")    return compileSolid(currentBlock);
+    else if (command == "dots")     return compileDots(currentBlock);
+    else if (command == "twinkle")  return compileTwinkle(currentBlock);
+    else if (command == "segment")  return compileSegment(currentBlock);
     else if (command == "gradient") return compileGradient(currentBlock);
-    else if (command == "fade") return compileFade(currentBlock);
+    else if (command == "fade")     return compileFade(currentBlock);
+    else if (command == "after")    return compileAfter(currentBlock);
     else {
         parser.reportError(LEXER_ERROR, "Unknown command");
         parser.skipCommand();
@@ -49,10 +50,10 @@ Renderer *Compiler::compileBlock(Renderer *currentBlock) {
 }
 
 Renderer *Compiler::compileCapturedBlock(Renderer *currentBlock) {
-    if (parser.hasArgument()) return compileCommand(NULL);
-    if (parser.hasBlock()) return compileBlock(NULL);
+    if (parser.hasArgument()) return compileCommand(currentBlock);
+    if (parser.hasBlock()) return compileBlock(currentBlock);
     // This is NOT a dup, because hasBlock has side effects :(
-    return compileBlock(NULL);
+    return compileBlock(currentBlock);
 }
 
 Renderer *Compiler::compileSolid(Renderer *currentBlock) {
@@ -82,7 +83,7 @@ Renderer *Compiler::compileTwinkle(Renderer *currentBlock) {
 Renderer *Compiler::compileSegment(Renderer *currentBlock) {
     int from = parser.getInteger();
     int to = parser.getInteger();
-    Renderer *renderer = compileCapturedBlock(currentBlock);
+    Renderer *renderer = compileCapturedBlock();
     return addLayer(currentBlock, new SegmentRenderer(from, to, renderer));
 }
 
@@ -97,8 +98,14 @@ Renderer *Compiler::compileGradient(Renderer *currentBlock) {
     return addLayer(currentBlock, new GradientRenderer(colors));
 }
 
-Renderer *Compiler::compileFade(Renderer *currentBlock) {
+Renderer *Compiler::compileFade(Renderer *before) {
     uint32_t duration = parser.getDuration();
-    Renderer *after = compileCapturedBlock(currentBlock);
-    return new FadeRenderer(currentBlock, after, duration);
+    Renderer *after = compileCapturedBlock();
+    return new FadeRenderer(before, after, duration);
+}
+
+Renderer *Compiler::compileAfter(Renderer *before) {
+    uint32_t duration = parser.getDuration();
+    Renderer *after = compileCapturedBlock(before);
+    return new AfterRenderer(before, after, duration);
 }
