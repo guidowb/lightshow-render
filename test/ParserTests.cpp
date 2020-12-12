@@ -13,6 +13,12 @@ class ParserTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST( testInvalidColor );
     CPPUNIT_TEST( testInvalidColorDigit );
     CPPUNIT_TEST( testInvalidColorLength );
+    CPPUNIT_TEST( testInvalidDuration );
+    CPPUNIT_TEST( testInvalidDurationUnit );
+    CPPUNIT_TEST( testInvalidDurationLongUnit );
+    CPPUNIT_TEST( testValidDurationSeconds );
+    CPPUNIT_TEST( testValidDurationMinutes );
+    CPPUNIT_TEST( testValidDurationHours );
     CPPUNIT_TEST( testShortRGB );
     CPPUNIT_TEST( testShortRGBA );
     CPPUNIT_TEST( testLongRGB );
@@ -45,6 +51,42 @@ class ParserTests : public CppUnit::TestFixture  {
     void testValidInt() {
         Parser parser("ParserTests::testValidInt", "1234");
         CPPUNIT_ASSERT_EQUAL(1234, parser.getInteger());
+        CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
+    }
+
+    void testInvalidDuration() {
+        Parser parser("ParserTests::testInvalidDuration", "1234");
+        CPPUNIT_ASSERT_EQUAL(0, (int) parser.getDuration());
+        CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());
+    }
+
+    void testInvalidDurationUnit() {
+        Parser parser("ParserTests::testInvalidDurationUnit", "1234x");
+        CPPUNIT_ASSERT_EQUAL(0, (int) parser.getDuration());
+        CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());
+    }
+
+    void testInvalidDurationLongUnit() {
+        Parser parser("ParserTests::testInvalidDurationLongUnit", "1234seconds");
+        CPPUNIT_ASSERT_EQUAL(0, (int) parser.getDuration());
+        CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());
+    }
+
+    void testValidDurationSeconds() {
+        Parser parser("ParserTests::testValidDurationSeconds", "1234s");
+        CPPUNIT_ASSERT_EQUAL(1234000, (int) parser.getDuration());
+        CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
+    }
+
+    void testValidDurationMinutes() {
+        Parser parser("ParserTests::testValidDurationMinutes", "2m");
+        CPPUNIT_ASSERT_EQUAL(120000, (int) parser.getDuration());
+        CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
+    }
+
+    void testValidDurationHours() {
+        Parser parser("ParserTests::testValidDurationHours", "3h");
+        CPPUNIT_ASSERT_EQUAL(3 * 60 * 60000, (int) parser.getDuration());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }
 

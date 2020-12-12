@@ -19,6 +19,8 @@ public:
     const Word &getCommand();
     int  getInteger();
     RGBA getColor();
+    uint32_t getDuration();
+
     bool hasArgument();
     void endCommand();
     void skipCommand();

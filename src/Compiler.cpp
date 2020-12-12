@@ -98,6 +98,7 @@ Renderer *Compiler::compileGradient(Renderer *currentBlock) {
 }
 
 Renderer *Compiler::compileFade(Renderer *currentBlock) {
+    uint32_t duration = parser.getDuration();
     Renderer *after = compileCapturedBlock(currentBlock);
-    return new FadeRenderer(currentBlock, after);
+    return new FadeRenderer(currentBlock, after, duration);
 }

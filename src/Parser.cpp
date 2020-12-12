@@ -71,6 +71,29 @@ int Parser::getInteger() {
     return value;
 }
 
+uint32_t Parser::getDuration() {
+    const Word &word = next();
+    if (!word.isString() || !isdigit(word[0])) {
+        reportError(LEXER_ERROR, "Expected duration");
+        return 0;
+    }
+    int index = 0;
+    int value = 0;
+    char ch;
+    while ((ch = word[index]) && isdigit(ch)) {
+        value = value * 10 + (ch - '0');
+        index++;
+    }
+    if (ch && !word[index+1]) switch (ch) {
+    case 's': return value * 1000;
+    case 'm': return value * 1000 * 60;
+    case 'h': return value * 1000 * 60 * 60;
+    default: break;
+    }
+    reportError(LEXER_ERROR, "Duration must end with a valid unit");
+    return 0;
+}
+
 RGBA Parser::getColor() {
     const Word &word = next();
     if (!word.isString() || word[0] != '#') {

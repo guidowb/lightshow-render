@@ -105,13 +105,14 @@ private:
 
 class FadeRenderer : public Renderer {
 public:
-    FadeRenderer(Renderer *before, Renderer *after);
+    FadeRenderer(Renderer *before, Renderer *after, uint32_t duration);
     virtual ~FadeRenderer();
     virtual void render(Canvas *canvas);
 
 private:
     Renderer *before;
     Renderer *after;
+    uint32_t duration;
 };
 
 #endif /* Renderers_h */

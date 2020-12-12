@@ -19,7 +19,7 @@ dots <spacing> <color>...
 twinkle <color> [<twinkles-per-minute>]
 segment <from> <to> [<command>|<block>]
 gradient <color> <color>...
-fade
+fade <duration>
 ```
 
 ### Planned Patterns

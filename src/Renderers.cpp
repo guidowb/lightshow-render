@@ -177,9 +177,10 @@ void GradientRenderer::render(Canvas *canvas) {
     }
 }
 
-FadeRenderer::FadeRenderer(Renderer *before, Renderer *after) {
+FadeRenderer::FadeRenderer(Renderer *before, Renderer *after, uint32_t duration) {
     this->before = before;
     this->after = after;
+    this->duration = duration;
 }
 
 FadeRenderer::~FadeRenderer() {
@@ -191,7 +192,7 @@ void FadeRenderer::render(Canvas *canvas) {
 
     uint32_t time = canvas->getTime();
 
-    if (time > 1000) {
+    if (time > duration) {
         after->render(canvas);
         return;
     }
@@ -213,10 +214,11 @@ void FadeRenderer::render(Canvas *canvas) {
 
     private:
         Canvas *parent;
-        long ratio;
+        uint32_t ratio;
     };
 
     before->render(canvas);
-    FadeCanvas faded(canvas, time);
+    uint32_t ratio = (time * 1000) / duration;
+    FadeCanvas faded(canvas, ratio);
     after->render(&faded);
 }
