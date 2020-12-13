@@ -25,6 +25,7 @@ Renderer *Compiler::compileCommand(Renderer *currentBlock) {
     else if (command == "gradient") return compileGradient(currentBlock);
     else if (command == "fade")     return compileFade(currentBlock);
     else if (command == "after")    return compileAfter(currentBlock);
+    else if (command == "repeat")   return compileRepeat(currentBlock);
     else {
         parser.reportError(LEXER_ERROR, "Unknown command");
         parser.skipCommand();

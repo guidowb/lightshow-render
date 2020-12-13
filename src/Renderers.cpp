@@ -198,8 +198,7 @@ bool FadeRenderer::render(Canvas *canvas) {
     uint32_t time = canvas->sceneTime();
 
     if (time > duration) {
-        after->render(canvas);
-        return true;
+        return after->render(canvas);
     }
 
     // TODO: If the "after" renderer has any transparency, then we can't stop rendering the
@@ -219,12 +218,11 @@ bool FadeRenderer::render(Canvas *canvas) {
         uint32_t ratio;
     };
 
-    bool complete = true;
-    complete &= before->render(canvas);
+    before->render(canvas);
     uint32_t ratio = (time * 1000) / duration;
     FadeCanvas faded(canvas, ratio);
-    complete &= after->render(&faded);
-    return complete;
+    after->render(&faded);
+    return false;
 }
 
 AfterRenderer::AfterRenderer(Renderer *before, Renderer *after, uint32_t duration) {
@@ -253,18 +251,17 @@ bool AfterRenderer::render(Canvas *canvas) {
 
     uint32_t time = canvas->sceneTime();
 
-    bool complete = true;
-    complete &= before->render(canvas);
+    before->render(canvas);
     if (time > duration) {
         AfterCanvas skewed(canvas, duration);
-        complete &= after->render(&skewed);
+        return after->render(&skewed);
     }
-    return complete;
+    return false;
 }
 
 RepeatRenderer::RepeatRenderer(Renderer *block) {
     this->block = block;
-
+    this->clockSkew = 0;
 }
 
 RepeatRenderer::~RepeatRenderer() {
@@ -273,5 +270,20 @@ RepeatRenderer::~RepeatRenderer() {
 
 bool RepeatRenderer::render(Canvas *canvas) {
 
-    return false;
+    uint32_t sceneTime = canvas->sceneTime();
+
+    class RepeatCanvas : public MappedCanvas {
+    public:
+        RepeatCanvas(Canvas *parent, uint32_t clockSkew) : MappedCanvas(parent) { this->clockSkew = clockSkew; }
+        virtual uint32_t sceneTime() { return parent->sceneTime() - clockSkew; }
+
+    private:
+        uint32_t clockSkew;
+    };
+
+    RepeatCanvas repeat(canvas, this->clockSkew);
+    if (block->render(&repeat)) {
+        this->clockSkew = sceneTime;
+    }
+    return true;
 }

@@ -135,6 +135,7 @@ public:
 
 private:
     Renderer *block;
+    uint32_t clockSkew;
 };
 
 #endif /* Renderers_h */
