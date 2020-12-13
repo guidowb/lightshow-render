@@ -1,4 +1,5 @@
 #include "Renderers.h"
+#include "Canvasses.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -43,15 +44,15 @@ SolidRenderer::SolidRenderer(RGBA color) {
 }
 
 bool SolidRenderer::render(Canvas *canvas) {
-    for (int p = 0; p < canvas->getSize(); p++) canvas->setPixel(p, color);
+    for (uint16_t p = 0; p < canvas->getSize(); p++) canvas->setPixel(p, color);
     return true;
 }
 
-DotsRenderer::DotsRenderer(int spacing, Vector<RGBA> &colors) {
+DotsRenderer::DotsRenderer(uint16_t spacing, Vector<RGBA> &colors) {
     this->spacing = spacing;
     this->ncolors = colors.size();
     this->color = new RGBA[this->ncolors];
-    for (int p = 0; p < this->ncolors; p++) this->color[p] = colors[p];
+    for (uint16_t p = 0; p < this->ncolors; p++) this->color[p] = colors[p];
 }
 
 DotsRenderer::~DotsRenderer() {
@@ -60,14 +61,14 @@ DotsRenderer::~DotsRenderer() {
 
 bool DotsRenderer::render(Canvas *canvas) {
     int c = 0;
-    for (int p = 0; p < canvas->getSize(); p += spacing) {
+    for (uint16_t p = 0; p < canvas->getSize(); p += spacing) {
         canvas->setPixel(p, color[c]);
         c = (c + 1) % ncolors;
     }
     return true;
 }
 
-TwinkleRenderer::TwinkleRenderer(RGBA color, int tpm) {
+TwinkleRenderer::TwinkleRenderer(RGBA color, uint16_t tpm) {
 
     // Any given pixel twinkles every cycle_total (N) millis.
     // It takes cycle_brighten (K) time to brighten, and
@@ -100,7 +101,7 @@ TwinkleRenderer::TwinkleRenderer(RGBA color, int tpm) {
 bool TwinkleRenderer::render(Canvas *canvas) {
 
     uint32_t cycle_total = (60000 * canvas->getSize()) / this->twinkles_per_minute;
-    for (int p = 0; p < canvas->getSize(); p++) {
+    for (uint16_t p = 0; p < canvas->getSize(); p++) {
         uint32_t ptime = (canvas->globalTime() + random(p)) % cycle_total;
         if (ptime < cycle_brighten) {
             int alpha = ((double) ptime / cycle_brighten) * (this->color & 0x0ff);
@@ -109,7 +110,7 @@ bool TwinkleRenderer::render(Canvas *canvas) {
         }
         else if (ptime < (cycle_dim + cycle_brighten)) {
             ptime -= cycle_brighten;
-            int alpha = (1.0 - (double) ptime / cycle_dim) * (this->color & 0x0ff);
+            uint8_t alpha = (1.0 - (double) ptime / cycle_dim) * (this->color & 0x0ff);
             RGBA color = (this->color & 0xffffff00) + alpha;
             canvas->setPixel(p, color);
         }
@@ -117,7 +118,7 @@ bool TwinkleRenderer::render(Canvas *canvas) {
     return true;
 }
 
-SegmentRenderer::SegmentRenderer(int from, int to, Renderer *renderer) {
+SegmentRenderer::SegmentRenderer(uint16_t from, uint16_t to, Renderer *renderer) {
     this->from  = from;
     this->to = to;
     this->renderer = renderer;
@@ -129,15 +130,13 @@ SegmentRenderer::~SegmentRenderer() {
 
 bool SegmentRenderer::render(Canvas *canvas) {
 
-    class SegmentCanvas : public Canvas {
+    class SegmentCanvas : public MappedCanvas {
     public:
-        SegmentCanvas(Canvas *parent, uint16_t from, uint16_t to) { this->parent = parent; this->from = from; this->to = to; }
+        SegmentCanvas(Canvas *parent, uint16_t from, uint16_t to) : MappedCanvas(parent) { this->from = from; this->to = to; }
         virtual uint16_t getSize() { return to - from; }
-        virtual void setPixel(int pixel, RGBA color) { parent->setPixel(pixel + from, color); }
-        virtual uint32_t globalTime() { return parent->globalTime(); }
+        virtual void setPixel(uint16_t pixel, RGBA color) { parent->setPixel(pixel + from, color); }
 
     private:
-        Canvas *parent;
         uint16_t from;
         uint16_t to;
     };
@@ -149,7 +148,7 @@ bool SegmentRenderer::render(Canvas *canvas) {
 GradientRenderer::GradientRenderer(Vector<RGBA> &colors) {
     this->ncolors = colors.size();
     this->color = new RGBA[this->ncolors];
-    for (int p = 0; p < this->ncolors; p++) this->color[p] = colors[p];
+    for (uint16_t p = 0; p < this->ncolors; p++) this->color[p] = colors[p];
 }
 
 GradientRenderer::~GradientRenderer() {
@@ -158,8 +157,8 @@ GradientRenderer::~GradientRenderer() {
 
 bool GradientRenderer::render(Canvas *canvas) {
     int segments = ncolors - 1;
-    int interval = canvas->getSize() / segments;
-    for (int p = 0; p < canvas->getSize(); p++) {
+    uint16_t interval = canvas->getSize() / segments;
+    for (uint16_t p = 0; p < canvas->getSize(); p++) {
         int i1 = (p / interval) % ncolors;
         int i2 = (i1 + 1) % ncolors;
         int fraction = p % interval;
@@ -207,19 +206,16 @@ bool FadeRenderer::render(Canvas *canvas) {
     // "before" at the end of the fade. That's something we should consider detecting and
     // handling more properly.
 
-    class FadeCanvas : public Canvas {
+    class FadeCanvas : public MappedCanvas {
     public:
-        FadeCanvas(Canvas *parent, uint32_t ratio) { this->parent = parent; this->ratio = ratio; }
-        virtual uint16_t getSize() { return parent->getSize(); }
-        virtual void setPixel(int pixel, RGBA color) {
+        FadeCanvas(Canvas *parent, uint32_t ratio) : MappedCanvas(parent) { this->ratio = ratio; }
+        virtual void setPixel(uint16_t pixel, RGBA color) {
             int alpha = ((color & 0x0ff) * ratio) / 1000;
             color = (color & 0xFFFFFF00) | (alpha & 0x0FF);
             parent->setPixel(pixel, color);
         }
-        virtual uint32_t globalTime() { return parent->globalTime(); }
 
     private:
-        Canvas *parent;
         uint32_t ratio;
     };
 
@@ -246,16 +242,12 @@ AfterRenderer::~AfterRenderer() {
 
 bool AfterRenderer::render(Canvas *canvas) {
 
-    class AfterCanvas : public Canvas {
+    class AfterCanvas : public MappedCanvas {
     public:
-        AfterCanvas(Canvas *parent, uint32_t duration) { this->parent = parent; this->duration = duration; }
-        virtual uint16_t getSize() { return parent->getSize(); }
-        virtual void setPixel(int pixel, RGBA color) { parent->setPixel(pixel, color); }
-        virtual uint32_t globalTime() { return parent->globalTime(); }
+        AfterCanvas(Canvas *parent, uint32_t duration) : MappedCanvas(parent) { this->duration = duration; }
         virtual uint32_t sceneTime() { return parent->sceneTime() - duration; }
 
     private:
-        Canvas *parent;
         uint32_t duration;
     };
 

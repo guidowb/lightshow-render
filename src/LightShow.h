@@ -16,7 +16,7 @@ public:
     virtual uint16_t getSize() = 0;
     virtual uint32_t globalTime() = 0;
     virtual uint32_t sceneTime();
-    virtual void setPixel(int pixel, RGBA color) = 0;
+    virtual void setPixel(uint16_t pixel, RGBA color) = 0;
 };
 
 class Renderer {

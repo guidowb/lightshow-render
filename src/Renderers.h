@@ -58,37 +58,37 @@ private:
 
 class DotsRenderer : public Renderer {
 public:
-    DotsRenderer(int spacing, Vector<RGBA> &colors);
+    DotsRenderer(uint16_t spacing, Vector<RGBA> &colors);
     virtual ~DotsRenderer();
     virtual bool render(Canvas *canvas);
 
 private:
-    int spacing;
+    uint16_t spacing;
     int ncolors;
     RGBA *color;
 };
 
 class TwinkleRenderer : public Renderer {
 public:
-    TwinkleRenderer(RGBA color, int tpm);
+    TwinkleRenderer(RGBA color, uint16_t tpm);
     virtual bool render(Canvas *canvas);
 
 private:
-	long twinkles_per_minute;
-	long cycle_brighten;
-	long cycle_dim;
+	uint32_t twinkles_per_minute;
+	uint32_t cycle_brighten;
+	uint32_t cycle_dim;
 	RGBA color;
 };
 
 class SegmentRenderer : public Renderer {
 public:
-    SegmentRenderer(int from, int to, Renderer *renderer);
+    SegmentRenderer(uint16_t from, uint16_t to, Renderer *renderer);
     virtual ~SegmentRenderer();
     virtual bool render(Canvas *canvas);
 
 private:
-    int from;
-    int to;
+    uint16_t from;
+    uint16_t to;
     Renderer *renderer;
 };
 
