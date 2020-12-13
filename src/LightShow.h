@@ -13,15 +13,16 @@ const RGBA RGBA_NULL = 0;
 
 class Canvas {
 public:
-    virtual int getSize() = 0;
-    virtual long getTime() = 0;
+    virtual uint16_t getSize() = 0;
+    virtual uint32_t globalTime() = 0;
+    virtual uint32_t sceneTime();
     virtual void setPixel(int pixel, RGBA color) = 0;
 };
 
 class Renderer {
 public:
     virtual ~Renderer();
-    virtual void render(Canvas *canvas) = 0;
+    virtual bool render(Canvas *canvas) = 0;
 };
 
 extern bool render(const char *sourceName, const char *pattern, Canvas *canvas);

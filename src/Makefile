@@ -13,6 +13,7 @@ SRCS= \
 	Parser.cpp \
 	Compiler.cpp \
 	Renderers.cpp \
+	Canvasses.cpp \
 	LightShow.cpp
 
 OBJS= \
@@ -20,6 +21,7 @@ OBJS= \
 	Parser.o \
 	Compiler.o \
 	Renderers.o \
+	Canvasses.o \
 	LightShow.o
 
 $(LIB): $(OBJS)
@@ -33,4 +35,5 @@ Lexer.cpp: Lexer.h
 Parser.cpp: Parser.h Lexer.h LightShow.h
 Compiler.cpp: Compiler.h Parser.h LightShow.h Renderers.h
 Renderers.cpp: Renderers.h LightShow.h
+Canvasses.cpp: Canvasses.h LightShow.h
 LightShow.cpp: LightShow.h Compiler.h

@@ -19,7 +19,7 @@ static uint32_t random(uint32_t seed) {
 
 NullRenderer::NullRenderer() {}
 
-void NullRenderer::render(Canvas *canvas) {}
+bool NullRenderer::render(Canvas *canvas) { return true; }
 
 LayeredRenderer::LayeredRenderer(Renderer *thisLayer, Renderer *nextLayer) {
     this->thisLayer = thisLayer;
@@ -31,17 +31,20 @@ LayeredRenderer::~LayeredRenderer() {
     if (this->nextLayer) delete this->nextLayer;
 }
 
-void LayeredRenderer::render(Canvas *canvas) {
-    if (this->thisLayer) this->thisLayer->render(canvas);
-    if (this->nextLayer) this->nextLayer->render(canvas);
+bool LayeredRenderer::render(Canvas *canvas) {
+    bool complete = true;
+    if (this->thisLayer) complete &= this->thisLayer->render(canvas);
+    if (this->nextLayer) complete &= this->nextLayer->render(canvas);
+    return complete;
 }
 
 SolidRenderer::SolidRenderer(RGBA color) {
     this->color = color;
 }
 
-void SolidRenderer::render(Canvas *canvas) {
+bool SolidRenderer::render(Canvas *canvas) {
     for (int p = 0; p < canvas->getSize(); p++) canvas->setPixel(p, color);
+    return true;
 }
 
 DotsRenderer::DotsRenderer(int spacing, Vector<RGBA> &colors) {
@@ -55,12 +58,13 @@ DotsRenderer::~DotsRenderer() {
     delete this->color;
 }
 
-void DotsRenderer::render(Canvas *canvas) {
+bool DotsRenderer::render(Canvas *canvas) {
     int c = 0;
     for (int p = 0; p < canvas->getSize(); p += spacing) {
         canvas->setPixel(p, color[c]);
         c = (c + 1) % ncolors;
     }
+    return true;
 }
 
 TwinkleRenderer::TwinkleRenderer(RGBA color, int tpm) {
@@ -93,11 +97,11 @@ TwinkleRenderer::TwinkleRenderer(RGBA color, int tpm) {
     this->color = color;
 }
 
-void TwinkleRenderer::render(Canvas *canvas) {
+bool TwinkleRenderer::render(Canvas *canvas) {
 
     uint32_t cycle_total = (60000 * canvas->getSize()) / this->twinkles_per_minute;
     for (int p = 0; p < canvas->getSize(); p++) {
-        uint32_t ptime = (canvas->getTime() + random(p)) % cycle_total;
+        uint32_t ptime = (canvas->globalTime() + random(p)) % cycle_total;
         if (ptime < cycle_brighten) {
             int alpha = ((double) ptime / cycle_brighten) * (this->color & 0x0ff);
             RGBA color = (this->color & 0xffffff00) + alpha;
@@ -110,6 +114,7 @@ void TwinkleRenderer::render(Canvas *canvas) {
             canvas->setPixel(p, color);
         }
     }
+    return true;
 }
 
 SegmentRenderer::SegmentRenderer(int from, int to, Renderer *renderer) {
@@ -122,23 +127,23 @@ SegmentRenderer::~SegmentRenderer() {
     delete this->renderer;
 }
 
-void SegmentRenderer::render(Canvas *canvas) {
+bool SegmentRenderer::render(Canvas *canvas) {
 
     class SegmentCanvas : public Canvas {
     public:
-        SegmentCanvas(Canvas *parent, int from, int to) { this->parent = parent; this->from = from; this->to = to; }
-        virtual int getSize() { return to - from; }
+        SegmentCanvas(Canvas *parent, uint16_t from, uint16_t to) { this->parent = parent; this->from = from; this->to = to; }
+        virtual uint16_t getSize() { return to - from; }
         virtual void setPixel(int pixel, RGBA color) { parent->setPixel(pixel + from, color); }
-        virtual long getTime() { return parent->getTime(); }
+        virtual uint32_t globalTime() { return parent->globalTime(); }
 
     private:
         Canvas *parent;
-        int from;
-        int to;
+        uint16_t from;
+        uint16_t to;
     };
 
     SegmentCanvas segment(canvas, from, to);
-    renderer->render(&segment);
+    return renderer->render(&segment);
 }
 
 GradientRenderer::GradientRenderer(Vector<RGBA> &colors) {
@@ -151,7 +156,7 @@ GradientRenderer::~GradientRenderer() {
     delete this->color;
 }
 
-void GradientRenderer::render(Canvas *canvas) {
+bool GradientRenderer::render(Canvas *canvas) {
     int segments = ncolors - 1;
     int interval = canvas->getSize() / segments;
     for (int p = 0; p < canvas->getSize(); p++) {
@@ -175,6 +180,7 @@ void GradientRenderer::render(Canvas *canvas) {
         RGBA c3 = (r << 24) + (g << 16) + (b << 8) + a;
         canvas->setPixel(p, c3);
     }
+    return true;
 }
 
 FadeRenderer::FadeRenderer(Renderer *before, Renderer *after, uint32_t duration) {
@@ -188,13 +194,13 @@ FadeRenderer::~FadeRenderer() {
     if (this->after)  delete this->after;
 }
 
-void FadeRenderer::render(Canvas *canvas) {
+bool FadeRenderer::render(Canvas *canvas) {
 
-    uint32_t time = canvas->getTime();
+    uint32_t time = canvas->sceneTime();
 
     if (time > duration) {
         after->render(canvas);
-        return;
+        return true;
     }
 
     // TODO: If the "after" renderer has any transparency, then we can't stop rendering the
@@ -204,23 +210,25 @@ void FadeRenderer::render(Canvas *canvas) {
     class FadeCanvas : public Canvas {
     public:
         FadeCanvas(Canvas *parent, uint32_t ratio) { this->parent = parent; this->ratio = ratio; }
-        virtual int getSize() { return parent->getSize(); }
+        virtual uint16_t getSize() { return parent->getSize(); }
         virtual void setPixel(int pixel, RGBA color) {
             int alpha = ((color & 0x0ff) * ratio) / 1000;
             color = (color & 0xFFFFFF00) | (alpha & 0x0FF);
             parent->setPixel(pixel, color);
         }
-        virtual long getTime() { return parent->getTime(); }
+        virtual uint32_t globalTime() { return parent->globalTime(); }
 
     private:
         Canvas *parent;
         uint32_t ratio;
     };
 
-    before->render(canvas);
+    bool complete = true;
+    complete &= before->render(canvas);
     uint32_t ratio = (time * 1000) / duration;
     FadeCanvas faded(canvas, ratio);
-    after->render(&faded);
+    complete &= after->render(&faded);
+    return complete;
 }
 
 AfterRenderer::AfterRenderer(Renderer *before, Renderer *after, uint32_t duration) {
@@ -236,25 +244,42 @@ AfterRenderer::~AfterRenderer() {
     if (this->after)  delete this->after;
 }
 
-void AfterRenderer::render(Canvas *canvas) {
+bool AfterRenderer::render(Canvas *canvas) {
 
     class AfterCanvas : public Canvas {
     public:
         AfterCanvas(Canvas *parent, uint32_t duration) { this->parent = parent; this->duration = duration; }
-        virtual int getSize() { return parent->getSize(); }
+        virtual uint16_t getSize() { return parent->getSize(); }
         virtual void setPixel(int pixel, RGBA color) { parent->setPixel(pixel, color); }
-        virtual long getTime() { return parent->getTime() - duration; }
+        virtual uint32_t globalTime() { return parent->globalTime(); }
+        virtual uint32_t sceneTime() { return parent->sceneTime() - duration; }
 
     private:
         Canvas *parent;
         uint32_t duration;
     };
 
-    uint32_t time = canvas->getTime();
+    uint32_t time = canvas->sceneTime();
 
-    before->render(canvas);
+    bool complete = true;
+    complete &= before->render(canvas);
     if (time > duration) {
         AfterCanvas skewed(canvas, duration);
-        after->render(&skewed);
+        complete &= after->render(&skewed);
     }
+    return complete;
+}
+
+RepeatRenderer::RepeatRenderer(Renderer *block) {
+    this->block = block;
+
+}
+
+RepeatRenderer::~RepeatRenderer() {
+    if (this->block) delete this->block;
+}
+
+bool RepeatRenderer::render(Canvas *canvas) {
+
+    return false;
 }

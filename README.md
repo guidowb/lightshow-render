@@ -88,6 +88,32 @@ method on the root of the renderer tree.
 The `Compiler` uses a `Parser`, and it uses a `Lexer`, to interpret the
 pattern language.
 
+### Animation
+
+Renderers render one frame at a time. Non-animated, static renderers just
+render the same pattern for every frame. But animating renderers may draw
+a different pattern each time.
+
+Frame rate is unpredictable, so animating renderers are expected to respect
+the current time to determine the content of the frame to draw. For this
+purpose, each `Canvas` presents two different clocks to renderers.
+
+`globalTime()` reflects the system
+clock and is linearly increasing until it wraps (which only occurs once
+every 49 days or so. That clock is the one to use for cycling animations,
+and using it guarantees that if the same renderer appears in consecutive
+scenes, the transition between the scenes is seamless.
+
+The second clock is the `sceneTime()`, which is guaranteed to start at zero
+when the scene that contains the renderer first appears. This is the clock
+that works for one-shot animations, such as transitions between scenes.
+
+Renderers that wrap scenes want to know when those scenes have complated.
+Thus renderers that perform a one-shot animation should return `false`
+from their `render()` methods until their scene completes. All other
+renderers, including ones that animate cycles, should always return true
+to allow wrapped sequences to proceed.
+
 ## Testing
 
 ### Unit testing

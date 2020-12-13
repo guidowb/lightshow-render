@@ -36,6 +36,7 @@ private:
     Renderer *compileGradient(Renderer *currentBlock);
     Renderer *compileFade(Renderer *currentBlock);
     Renderer *compileAfter(Renderer *currentBlock);
+    Renderer *compileRepeat(Renderer *currentBlock);
 };
 
 #endif /* Compiler_h */

@@ -34,7 +34,7 @@ class LayeredRenderer : public Renderer {
 public:
     LayeredRenderer(Renderer *thisLayer, Renderer *nextLayer);
     virtual ~LayeredRenderer();
-    virtual void render(Canvas *canvas);
+    virtual bool render(Canvas *canvas);
 
 private:
     Renderer *thisLayer;
@@ -44,13 +44,13 @@ private:
 class NullRenderer : public Renderer {
 public:
     NullRenderer();
-    virtual void render(Canvas *canvas);
+    virtual bool render(Canvas *canvas);
 };
 
 class SolidRenderer : public Renderer {
 public:
     SolidRenderer(RGBA color);
-    virtual void render(Canvas *canvas);
+    virtual bool render(Canvas *canvas);
 
 private:
     RGBA color;
@@ -60,7 +60,7 @@ class DotsRenderer : public Renderer {
 public:
     DotsRenderer(int spacing, Vector<RGBA> &colors);
     virtual ~DotsRenderer();
-    virtual void render(Canvas *canvas);
+    virtual bool render(Canvas *canvas);
 
 private:
     int spacing;
@@ -71,7 +71,7 @@ private:
 class TwinkleRenderer : public Renderer {
 public:
     TwinkleRenderer(RGBA color, int tpm);
-    virtual void render(Canvas *canvas);
+    virtual bool render(Canvas *canvas);
 
 private:
 	long twinkles_per_minute;
@@ -84,7 +84,7 @@ class SegmentRenderer : public Renderer {
 public:
     SegmentRenderer(int from, int to, Renderer *renderer);
     virtual ~SegmentRenderer();
-    virtual void render(Canvas *canvas);
+    virtual bool render(Canvas *canvas);
 
 private:
     int from;
@@ -96,7 +96,7 @@ class GradientRenderer : public Renderer {
 public:
     GradientRenderer(Vector<RGBA> &colors);
     virtual ~GradientRenderer();
-    virtual void render(Canvas *canvas);
+    virtual bool render(Canvas *canvas);
 
 private:
     int ncolors;
@@ -107,7 +107,7 @@ class FadeRenderer : public Renderer {
 public:
     FadeRenderer(Renderer *before, Renderer *after, uint32_t duration);
     virtual ~FadeRenderer();
-    virtual void render(Canvas *canvas);
+    virtual bool render(Canvas *canvas);
 
 private:
     Renderer *before;
@@ -119,7 +119,7 @@ class AfterRenderer : public Renderer {
 public:
     AfterRenderer(Renderer *before, Renderer *after, uint32_t duration);
     virtual ~AfterRenderer();
-    virtual void render(Canvas *canvas);
+    virtual bool render(Canvas *canvas);
 
 private:
     Renderer *before;
@@ -127,15 +127,14 @@ private:
     uint32_t duration;
 };
 
-class DelayRenderer : public Renderer {
+class RepeatRenderer : public Renderer {
 public:
-    DelayRenderer(Renderer *block, uint32_t delay);
-    virtual ~DelayRenderer();
-    virtual void render(Canvas *canvas);
+    RepeatRenderer(Renderer *block);
+    virtual ~RepeatRenderer();
+    virtual bool render(Canvas *canvas);
 
 private:
     Renderer *block;
-    uint32_t delay;
 };
 
 #endif /* Renderers_h */

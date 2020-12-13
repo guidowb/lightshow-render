@@ -109,3 +109,8 @@ Renderer *Compiler::compileAfter(Renderer *before) {
     Renderer *after = compileCapturedBlock(before);
     return new AfterRenderer(before, after, duration);
 }
+
+Renderer *Compiler::compileRepeat(Renderer *currentBlock) {
+    Renderer *block = compileCapturedBlock();
+    return addLayer(currentBlock, new RepeatRenderer(block));
+}
