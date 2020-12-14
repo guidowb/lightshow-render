@@ -25,7 +25,7 @@ public:
     virtual bool render(Canvas *canvas) = 0;
 };
 
-extern void render(void *renderer, Canvas *canvas);
-extern void *compile(const char *sourceName, const char *pattern);
+extern void render(Renderer *renderer, Canvas *canvas);
+extern Renderer *compile(const char *sourceName, const char *pattern);
 
 #endif /* LightShow_h */
