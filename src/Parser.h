@@ -21,6 +21,7 @@ public:
     RGBA getColor();
     uint32_t getDuration();
     uint32_t getTime();
+    uint16_t getDate();
 
     bool hasArgument();
     void endCommand();

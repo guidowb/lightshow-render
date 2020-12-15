@@ -298,3 +298,31 @@ bool TimeRenderer::render(Canvas *canvas) {
     if (inWindow) block->render(canvas);
     return true;
 }
+
+DateRenderer::DateRenderer(Renderer *block, uint16_t from, uint16_t to) {
+    this->block = block;
+    this->from = from;
+    this->to = to;
+}
+
+DateRenderer::~DateRenderer() {
+    if (this->block) delete this->block;
+}
+
+bool DateRenderer::render(Canvas *canvas) {
+    const uint32_t epoch = canvas->epochTime();
+    if (epoch == 0) return true;
+
+    const time_t time = epoch;
+    struct tm *timeinfo = localtime(&time);
+    uint16_t today = ((timeinfo->tm_mon + 1) << 8) + timeinfo->tm_mday;
+
+    bool inWindow = false;
+    if (from < to) inWindow = (from <= today) && (today < to);
+    else inWindow = (from <= today) || (today < to);
+
+    printf("today %d/%d from %d/%d to %d/%d %d\n", today >> 8, today & 0x0ff, from >> 8, from & 0x0ff, to >> 8, to & 0x0ff, inWindow);
+
+    if (inWindow) block->render(canvas);
+    return true;
+}

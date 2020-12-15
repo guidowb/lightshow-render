@@ -146,6 +146,34 @@ expectedTime:
     return 0;
 }
 
+uint16_t Parser::getDate() {
+
+    int month = 0;
+    int day = 0;
+
+    WordParser word(next());
+
+    if (word.isDigit()) month = word.getDigit();
+    else goto expectedDate;
+    if (word.isDigit()) month = month * 10 + word.getDigit();
+    if (!word.skip('/')) goto expectedDate;
+    if (month < 1 || month > 12) goto expectedDate;
+
+    if (word.isDigit()) day = word.getDigit();
+    else goto expectedDate;
+    if (word.isDigit()) day = day * 10 + word.getDigit();
+    else goto expectedDate;
+    if (day < 1 || day > 31) goto expectedDate;
+
+    if (!word.isEnded()) goto expectedDate;
+
+    return (month << 8) + day;
+
+expectedDate:
+    reportError(LEXER_ERROR, "Expected date of the form MM/DD");
+    return 0;
+}
+
 RGBA Parser::getColor() {
     const Word &word = next();
     if (!word.isString() || word[0] != '#') {

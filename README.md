@@ -27,6 +27,7 @@ fade <duration> <after-scene>
 after <duration> <after-scene>
 repeat <scene>
 time <from> <to> <scene>
+date <from> <to> <scene>
 ```
 
 Commands that take a scene as argument can have that scene provided in
@@ -66,7 +67,6 @@ indentation at each level must be consistent across any given block.
 
 ```text
 dashes <length> <color>...
-date <from> <to> <scene>
 brightness <percentage> <scene>
 gamma [<correction>] <scene>
 opacity [<level>] <scene>

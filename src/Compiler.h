@@ -38,6 +38,7 @@ private:
     Renderer *compileAfter(Renderer *currentBlock);
     Renderer *compileRepeat(Renderer *currentBlock);
     Renderer *compileTime(Renderer *ccurrentBlock);
+    Renderer *compileDate(Renderer *ccurrentBlock);
 };
 
 #endif /* Compiler_h */

@@ -27,6 +27,7 @@ Renderer *Compiler::compileCommand(Renderer *currentBlock) {
     else if (command == "after")    return compileAfter(currentBlock);
     else if (command == "repeat")   return compileRepeat(currentBlock);
     else if (command == "time")     return compileTime(currentBlock);
+    else if (command == "date")     return compileDate(currentBlock);
     else {
         parser.reportError(LEXER_ERROR, "Unknown command");
         parser.skipCommand();
@@ -122,4 +123,11 @@ Renderer *Compiler::compileTime(Renderer *currentBlock) {
     uint32_t to = parser.getTime();
     Renderer *block = compileCapturedBlock();
     return addLayer(currentBlock, new TimeRenderer(block, from, to));
+}
+
+Renderer *Compiler::compileDate(Renderer *currentBlock) {
+    uint16_t from = parser.getDate();
+    uint16_t to = parser.getDate();
+    Renderer *block = compileCapturedBlock();
+    return addLayer(currentBlock, new DateRenderer(block, from, to));
 }

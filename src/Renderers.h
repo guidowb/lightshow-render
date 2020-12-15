@@ -150,4 +150,16 @@ private:
     uint32_t to;
 };
 
+class DateRenderer : public Renderer {
+public:
+    DateRenderer(Renderer *block, uint16_t from, uint16_t to);
+    virtual ~DateRenderer();
+    virtual bool render(Canvas *canvas);
+
+private:
+    Renderer *block;
+    uint16_t from;
+    uint16_t to;
+};
+
 #endif /* Renderers_h */
