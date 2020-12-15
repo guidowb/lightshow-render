@@ -8,8 +8,28 @@
 
 #include <stdint.h>
 
-typedef uint32_t RGBA;
-const RGBA RGBA_NULL = 0;
+class RGBA {
+public:
+    RGBA();
+    RGBA(const uint8_t r, const uint8_t g, const uint8_t b, const uint8_t a = 0x0ff);
+
+public:
+    void operator+=(const RGBA other);
+    RGBA operator+(const RGBA other) const;
+    bool operator==(const RGBA other) const;
+    operator uint32_t() const;
+
+public:
+    RGBA blend(const RGBA other, uint32_t fraction) const;
+
+public:
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
+};
+
+const RGBA RGBA_NULL;
 
 class Canvas {
 public:

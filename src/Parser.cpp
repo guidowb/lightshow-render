@@ -128,7 +128,7 @@ RGBA Parser::getColor() {
         if (len == 8) a = (hexValue(word[7]) << 4) + hexValue(word[8]);
         else a = 0x0ff;
     }
-    return (r << 24) | (g << 16) | (b << 8) | a;
+    return RGBA(r, g, b, a);
 }
 
 bool Parser::isEOC(const Word &word) {

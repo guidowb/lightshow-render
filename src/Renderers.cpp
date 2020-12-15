@@ -104,14 +104,14 @@ bool TwinkleRenderer::render(Canvas *canvas) {
     for (uint16_t p = 0; p < canvas->getSize(); p++) {
         uint32_t ptime = (canvas->globalTime() + random(p)) % cycle_total;
         if (ptime < cycle_brighten) {
-            int alpha = ((double) ptime / cycle_brighten) * (this->color & 0x0ff);
-            RGBA color = (this->color & 0xffffff00) + alpha;
+            RGBA color = this->color;
+            color.a = ((double) ptime / cycle_brighten) * (this->color.a);
             canvas->setPixel(p, color);
         }
         else if (ptime < (cycle_dim + cycle_brighten)) {
             ptime -= cycle_brighten;
-            uint8_t alpha = (1.0 - (double) ptime / cycle_dim) * (this->color & 0x0ff);
-            RGBA color = (this->color & 0xffffff00) + alpha;
+            RGBA color = this->color;
+            color.a = (1.0 - (double) ptime / cycle_dim) * (this->color.a);
             canvas->setPixel(p, color);
         }
     }
@@ -161,23 +161,8 @@ bool GradientRenderer::render(Canvas *canvas) {
     for (uint16_t p = 0; p < canvas->getSize(); p++) {
         int i1 = (p / interval) % ncolors;
         int i2 = (i1 + 1) % ncolors;
-        int fraction = p % interval;
-		RGBA c1 = color[i1];
-        uint8_t r1 = (c1 >> 24) & 0x0ff;
-        uint8_t g1 = (c1 >> 16) & 0x0ff;
-        uint8_t b1 = (c1 >>  8) & 0x0ff;
-        uint8_t a1 = (c1      ) & 0x0ff;
-		RGBA c2 = color[i2];
-        uint8_t r2 = (c2 >> 24) & 0x0ff;
-        uint8_t g2 = (c2 >> 16) & 0x0ff;
-        uint8_t b2 = (c2 >>  8) & 0x0ff;
-        uint8_t a2 = (c2      ) & 0x0ff;
-        int r = (r1 * (interval - fraction) + r2 * fraction) / interval;
-        int g = (g1 * (interval - fraction) + g2 * fraction) / interval;
-        int b = (b1 * (interval - fraction) + b2 * fraction) / interval;
-        int a = (a1 * (interval - fraction) + a2 * fraction) / interval;
-        RGBA c3 = (r << 24) + (g << 16) + (b << 8) + a;
-        canvas->setPixel(p, c3);
+        int fraction = (p % interval) * 1000 / interval;
+        canvas->setPixel(p, color[i1].blend(color[i2], fraction));
     }
     return true;
 }
@@ -209,8 +194,7 @@ bool FadeRenderer::render(Canvas *canvas) {
     public:
         FadeCanvas(Canvas *parent, uint32_t ratio) : MappedCanvas(parent) { this->ratio = ratio; }
         virtual void setPixel(uint16_t pixel, RGBA color) {
-            int alpha = ((color & 0x0ff) * ratio) / 1000;
-            color = (color & 0xFFFFFF00) | (alpha & 0x0FF);
+            color.a = (color.a * ratio) / 1000;
             parent->setPixel(pixel, color);
         }
 

@@ -110,25 +110,25 @@ class ParserTests : public CppUnit::TestFixture  {
 
     void testShortRGB() {
         Parser parser("ParserTests::testShortRGB", "#123");
-        CPPUNIT_ASSERT_EQUAL((uint32_t) 0x112233FF, parser.getColor());
+        CPPUNIT_ASSERT_EQUAL(RGBA(0x11, 0x22, 0x33, 0xFF), parser.getColor());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }
 
     void testShortRGBA() {
         Parser parser("ParserTests::testShortRGBA", "#abcd");
-        CPPUNIT_ASSERT_EQUAL((uint32_t) 0xAABBCCDD, parser.getColor());
+        CPPUNIT_ASSERT_EQUAL(RGBA(0xAA, 0xBB, 0xCC, 0xDD), parser.getColor());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }
 
     void testLongRGB() {
-        Parser parser("ParserTests::testLongRGB", "#12345678");
-        CPPUNIT_ASSERT_EQUAL((uint32_t) 0x12345678, parser.getColor());
+        Parser parser("ParserTests::testLongRGB", "#123456");
+        CPPUNIT_ASSERT_EQUAL(RGBA(0x12, 0x34, 0x56, 0xFF), parser.getColor());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }
 
     void testLongRGBA() {
         Parser parser("ParserTests::testLongRGBA", "#09ABCDEF");
-        CPPUNIT_ASSERT_EQUAL((uint32_t) 0x09ABCDEF, parser.getColor());
+        CPPUNIT_ASSERT_EQUAL(RGBA(0x09, 0xAB, 0xCD, 0xEF), parser.getColor());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }
 
