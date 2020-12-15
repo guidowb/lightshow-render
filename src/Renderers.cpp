@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <time.h>
 
 //#define printf(fmt, ...) {}
 
@@ -269,5 +270,31 @@ bool RepeatRenderer::render(Canvas *canvas) {
     if (block->render(&repeat)) {
         this->clockSkew = sceneTime;
     }
+    return true;
+}
+
+TimeRenderer::TimeRenderer(Renderer *block, uint32_t from, uint32_t to) {
+    this->block = block;
+    this->from = from;
+    this->to = to;
+}
+
+TimeRenderer::~TimeRenderer() {
+    if (this->block) delete this->block;
+}
+
+bool TimeRenderer::render(Canvas *canvas) {
+    const uint32_t epoch = canvas->epochTime();
+    if (epoch == 0) return true;
+
+    const time_t time = epoch;
+    struct tm *timeinfo = localtime(&time);
+    uint32_t now = timeinfo->tm_sec + 60 * timeinfo->tm_min + 3600 * timeinfo->tm_hour;
+
+    bool inWindow = false;
+    if (from < to) inWindow = (from <= now) && (now < to);
+    else inWindow = (from <= now) || (now < to);
+
+    if (inWindow) block->render(canvas);
     return true;
 }

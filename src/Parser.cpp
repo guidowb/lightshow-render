@@ -6,7 +6,25 @@
 #include <stdio.h>
 #include <unistd.h>
 
-#define printf(fmt, ...) {}
+//#define printf(fmt, ...) {}
+
+class WordParser {
+public:
+    WordParser(const Word &word) : word(word), index(0) {};
+
+    // These tests maintain position
+    bool is(char ch) { return word[index] == ch; }
+    bool isDigit() { return word[index] && isdigit(word[index]); }
+    bool isEnded() { return word[index] == '\0'; }
+
+    // These getters advance position
+    bool skip(char ch) { if (word[index] == ch) { index++; return true; } else return false; }
+    int getDigit() { return word[index++] - '0'; }
+
+private:
+    int index;
+    const Word &word;
+};
 
 Parser::Parser(const char *sourceName, const char *pattern) :
     lexer(sourceName, pattern),
@@ -94,6 +112,40 @@ uint32_t Parser::getDuration() {
     return 0;
 }
 
+uint32_t Parser::getTime() {
+
+    int hour = 0;
+    int minute = 0;
+    int second = 0;
+
+    WordParser word(next());
+
+    if (word.isDigit()) hour = word.getDigit();
+    else goto expectedTime;
+    if (word.isDigit()) hour = hour * 10 + word.getDigit();
+    if (!word.skip(':')) goto expectedTime;
+
+    if (word.isDigit()) minute = word.getDigit();
+    else goto expectedTime;
+    if (word.isDigit()) minute = minute * 10 + word.getDigit();
+    else goto expectedTime;
+
+    if (word.skip(':')) {
+        if (word.isDigit()) second = word.getDigit();
+        else goto expectedTime;
+        if (word.isDigit()) second = second * 10 + word.getDigit();
+        else goto expectedTime;
+    }
+
+    if (!word.isEnded()) goto expectedTime;
+
+    return hour * 3600 + minute * 60 + second;
+
+expectedTime:
+    reportError(LEXER_ERROR, "Expected time of the form HH:MM[:SS]");
+    return 0;
+}
+
 RGBA Parser::getColor() {
     const Word &word = next();
     if (!word.isString() || word[0] != '#') {
@@ -159,7 +211,6 @@ void Parser::skipCommand() {
 bool Parser::hasBlock() {
     const Word &word = peeknext();
     if (!word.isEOL()) return false;
-    printf("hasBlock - indent %d (was %d)\n", word.length(), indent.length());
     if (word < indent) return false;
     next();
     return true;
@@ -172,7 +223,6 @@ bool Parser::inBlock() {
         return true;
     }
     if (word.isEOF()) return false;
-    printf("inBlock - indent %d (was %d)\n", word.length(), indent.length());
     return word >= indent;
 }
 
@@ -183,7 +233,6 @@ const Word Parser::startBlock() {
         reportError(LEXER_FATAL, "Compiler believes a block starts here");
         return savedIndent;
     }
-    printf("startBlock - indent %d (was %d)\n", word.length(), indent.length());
     indent = word;
     return savedIndent;
 }

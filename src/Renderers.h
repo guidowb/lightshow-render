@@ -138,4 +138,16 @@ private:
     uint32_t clockSkew;
 };
 
+class TimeRenderer : public Renderer {
+public:
+    TimeRenderer(Renderer *block, uint32_t from, uint32_t to);
+    virtual ~TimeRenderer();
+    virtual bool render(Canvas *canvas);
+
+private:
+    Renderer *block;
+    uint32_t from;
+    uint32_t to;
+};
+
 #endif /* Renderers_h */

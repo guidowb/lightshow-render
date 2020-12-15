@@ -25,6 +25,8 @@ segment <from> <to> <scene>
 gradient <color> <color>...
 fade <duration> <after-scene>
 after <duration> <after-scene>
+repeat <scene>
+time <from> <to> <scene>
 ```
 
 Commands that take a scene as argument can have that scene provided in
@@ -64,13 +66,12 @@ indentation at each level must be consistent across any given block.
 
 ```text
 dashes <length> <color>...
-time <from> <to> [<command>|<block>]
-date <from> <to> [<command>|<block>]
-brightness <percentage> [<command>|<block>]
-gamma [<correction>] [<command>|<block>]
-opacity [<level>] [<command>|<block>]
-bounce <size> <speed> [<command>|<block>]
-wrap <size> <speed> [<command>|<block>]
+date <from> <to> <scene>
+brightness <percentage> <scene>
+gamma [<correction>] <scene>
+opacity [<level>] <scene>
+bounce <size> <speed> <scene>
+wrap <size> <speed> <scene>
 ```
 
 ## Code Structure
@@ -98,9 +99,9 @@ Frame rate is unpredictable, so animating renderers are expected to respect
 the current time to determine the content of the frame to draw. For this
 purpose, each `Canvas` presents two different clocks to renderers.
 
-`globalTime()` reflects the system
-clock and is linearly increasing until it wraps (which only occurs once
-every 49 days or so. That clock is the one to use for cycling animations,
+`globalTime()` reflects the system clock and is monotonically increasing
+until it wraps (which only occurs once every 49 days or so).
+That clock is the one to use for cycling animations,
 and using it guarantees that if the same renderer appears in consecutive
 scenes, the transition between the scenes is seamless.
 

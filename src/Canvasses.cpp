@@ -1,6 +1,7 @@
 #include "Canvasses.h"
 
 uint32_t Canvas::sceneTime() { return globalTime(); }
+uint32_t Canvas::epochTime() { return 0; }
 
 MappedCanvas::MappedCanvas(Canvas *parent) {
     this->parent = parent;

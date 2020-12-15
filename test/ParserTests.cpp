@@ -19,6 +19,9 @@ class ParserTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST( testValidDurationSeconds );
     CPPUNIT_TEST( testValidDurationMinutes );
     CPPUNIT_TEST( testValidDurationHours );
+    CPPUNIT_TEST( testInvalidTime );
+    CPPUNIT_TEST( testValidTimeNoSeconds );
+    CPPUNIT_TEST( testValidTimeSeconds );
     CPPUNIT_TEST( testShortRGB );
     CPPUNIT_TEST( testShortRGBA );
     CPPUNIT_TEST( testLongRGB );
@@ -87,6 +90,24 @@ class ParserTests : public CppUnit::TestFixture  {
     void testValidDurationHours() {
         Parser parser("ParserTests::testValidDurationHours", "3h");
         CPPUNIT_ASSERT_EQUAL(3 * 60 * 60000, (int) parser.getDuration());
+        CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
+    }
+
+    void testInvalidTime() {
+        Parser parser("ParserTests::testInvalidTime", "4o'clock");
+        CPPUNIT_ASSERT_EQUAL(0, (int) parser.getTime());
+        CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());
+    }
+
+    void testValidTimeNoSeconds() {
+        Parser parser("ParserTests::testValidTimeNoSeconds", "12:34");
+        CPPUNIT_ASSERT_EQUAL(12 * 3600 + 34 * 60, (int) parser.getTime());
+        CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
+    }
+
+    void testValidTimeSeconds() {
+        Parser parser("ParserTests::testValidTimeSeconds", "12:34:56");
+        CPPUNIT_ASSERT_EQUAL(12 * 3600 + 34 * 60 + 56, (int) parser.getTime());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }
 

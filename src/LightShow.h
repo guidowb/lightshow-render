@@ -36,6 +36,7 @@ public:
     virtual uint16_t getSize() = 0;
     virtual uint32_t globalTime() = 0;
     virtual uint32_t sceneTime();
+    virtual uint32_t epochTime();
     virtual void setPixel(uint16_t pixel, RGBA color) = 0;
 };
 

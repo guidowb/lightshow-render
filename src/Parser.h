@@ -20,6 +20,7 @@ public:
     int  getInteger();
     RGBA getColor();
     uint32_t getDuration();
+    uint32_t getTime();
 
     bool hasArgument();
     void endCommand();
