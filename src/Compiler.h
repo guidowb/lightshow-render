@@ -25,6 +25,7 @@ private:
     Renderer *addLayer(Renderer *currentBlock, Renderer *layer);
 
 private:
+    Renderer *compileDefine(Renderer *currentBlock);
     Renderer *compileBlock(Renderer *currentBlock = NULL);
     Renderer *compileCapturedBlock(Renderer *currentBlock = NULL);
     Renderer *compileSequence(Renderer *currentBlock);

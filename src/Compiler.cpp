@@ -17,22 +17,28 @@ Renderer *Compiler::compile() {
 }
 
 Renderer *Compiler::compileCommand(Renderer *currentBlock) {
+
     const Word &command = parser.getCommand();
-    if      (command == "solid")    return compileSolid(currentBlock);
-    else if (command == "dots")     return compileDots(currentBlock);
-    else if (command == "twinkle")  return compileTwinkle(currentBlock);
-    else if (command == "segment")  return compileSegment(currentBlock);
-    else if (command == "gradient") return compileGradient(currentBlock);
-    else if (command == "fade")     return compileFade(currentBlock);
-    else if (command == "after")    return compileAfter(currentBlock);
-    else if (command == "repeat")   return compileRepeat(currentBlock);
-    else if (command == "time")     return compileTime(currentBlock);
-    else if (command == "date")     return compileDate(currentBlock);
-    else {
-        parser.reportError(LEXER_ERROR, "Unknown command");
-        parser.skipCommand();
-        return new NullRenderer();
-    }
+    if (command == "define")   return compileDefine(currentBlock);
+    if (command == "solid")    return compileSolid(currentBlock);
+    if (command == "dots")     return compileDots(currentBlock);
+    if (command == "twinkle")  return compileTwinkle(currentBlock);
+    if (command == "segment")  return compileSegment(currentBlock);
+    if (command == "gradient") return compileGradient(currentBlock);
+    if (command == "fade")     return compileFade(currentBlock);
+    if (command == "after")    return compileAfter(currentBlock);
+    if (command == "repeat")   return compileRepeat(currentBlock);
+    if (command == "time")     return compileTime(currentBlock);
+    if (command == "date")     return compileDate(currentBlock);
+
+    parser.reportError(LEXER_ERROR, "Unknown command");
+    parser.skipCommand();
+    return new NullRenderer();
+}
+
+Renderer *Compiler::compileDefine(Renderer *currentBlock) {
+    const Word &name = parser.getName();
+    return currentBlock;
 }
 
 // When compiling a block, we don't know if it represents a simple

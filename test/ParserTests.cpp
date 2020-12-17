@@ -10,6 +10,7 @@ class ParserTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST( testExtraArguments );
     CPPUNIT_TEST( testInvalidInt );
     CPPUNIT_TEST( testValidInt );
+    CPPUNIT_TEST( testNegativeInt );
     CPPUNIT_TEST( testInvalidColor );
     CPPUNIT_TEST( testInvalidColorDigit );
     CPPUNIT_TEST( testInvalidColorLength );
@@ -35,6 +36,7 @@ class ParserTests : public CppUnit::TestFixture  {
 
     void testSimpleCommand() {
         Parser parser("ParserTests::testSimpleCommand", "solid");
+        CPPUNIT_ASSERT(parser.isName());
         CPPUNIT_ASSERT(parser.getCommand() == "solid");
         parser.endCommand();
         CPPUNIT_ASSERT_EQUAL(0, parser.maxErrorLevel());
@@ -49,13 +51,22 @@ class ParserTests : public CppUnit::TestFixture  {
 
     void testInvalidInt() {
         Parser parser("ParserTests::testInvalidInt", "nonsense");
+        CPPUNIT_ASSERT(!parser.isInteger());
         CPPUNIT_ASSERT_EQUAL(0, parser.getInteger());
         CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());
     }
 
     void testValidInt() {
         Parser parser("ParserTests::testValidInt", "1234");
+        CPPUNIT_ASSERT(parser.isInteger());
         CPPUNIT_ASSERT_EQUAL(1234, parser.getInteger());
+        CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
+    }
+
+    void testNegativeInt() {
+        Parser parser("ParserTests::testValidInt", "-1234");
+        CPPUNIT_ASSERT(parser.isInteger());
+        CPPUNIT_ASSERT_EQUAL(-1234, parser.getInteger());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }
 
@@ -127,42 +138,49 @@ class ParserTests : public CppUnit::TestFixture  {
 
     void testInvalidColor() {
         Parser parser("ParserTests::testInvalidColor", "nonsense");
+        CPPUNIT_ASSERT(!parser.isColor());
         CPPUNIT_ASSERT_EQUAL(RGBA_NULL, parser.getColor());
         CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());
     }
 
     void testInvalidColorDigit() {
         Parser parser("ParserTests::testInvalidColorDigit", "#00zz0000");
+        CPPUNIT_ASSERT(!parser.isColor());
         CPPUNIT_ASSERT_EQUAL(RGBA_NULL, parser.getColor());
         CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());
     }
 
     void testInvalidColorLength() {
         Parser parser("ParserTests::testInvalidColorLength", "#12345");
+        CPPUNIT_ASSERT(!parser.isColor());
         CPPUNIT_ASSERT_EQUAL(RGBA_NULL, parser.getColor());
         CPPUNIT_ASSERT_EQUAL(LEXER_ERROR, parser.maxErrorLevel());
     }
 
     void testShortRGB() {
         Parser parser("ParserTests::testShortRGB", "#123");
+        CPPUNIT_ASSERT(parser.isColor());
         CPPUNIT_ASSERT_EQUAL(RGBA(0x11, 0x22, 0x33, 0xFF), parser.getColor());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }
 
     void testShortRGBA() {
         Parser parser("ParserTests::testShortRGBA", "#abcd");
+        CPPUNIT_ASSERT(parser.isColor());
         CPPUNIT_ASSERT_EQUAL(RGBA(0xAA, 0xBB, 0xCC, 0xDD), parser.getColor());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }
 
     void testLongRGB() {
         Parser parser("ParserTests::testLongRGB", "#123456");
+        CPPUNIT_ASSERT(parser.isColor());
         CPPUNIT_ASSERT_EQUAL(RGBA(0x12, 0x34, 0x56, 0xFF), parser.getColor());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }
 
     void testLongRGBA() {
         Parser parser("ParserTests::testLongRGBA", "#09ABCDEF");
+        CPPUNIT_ASSERT(parser.isColor());
         CPPUNIT_ASSERT_EQUAL(RGBA(0x09, 0xAB, 0xCD, 0xEF), parser.getColor());
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, parser.maxErrorLevel());
     }

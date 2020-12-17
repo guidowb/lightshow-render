@@ -11,12 +11,20 @@
 #include "Lexer.h"
 #include "LightShow.h"
 
+#include <map>
+
 class Parser {
 public:
     Parser(const char *sourceName, const char *pattern);
 
 public:
     const Word &getCommand();
+    const Word &getName();
+
+    bool isName();
+    bool isColor();
+    bool isInteger();
+
     int  getInteger();
     RGBA getColor();
     uint32_t getDuration();

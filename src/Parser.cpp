@@ -13,18 +13,40 @@ public:
     WordParser(const Word &word) : word(word), index(0) {};
 
     // These tests maintain position
-    bool is(char ch) { return word[index] == ch; }
-    bool isDigit() { return word[index] && isdigit(word[index]); }
-    bool isEnded() { return word[index] == '\0'; }
+    bool is(char ch) const { return word[index] == ch; }
+    bool isDigit() const { return word[index] && isdigit(word[index]); }
+    bool isAlpha() const { return word[index] && isalpha(word[index]); }
+    bool isAlnum() const { return word[index] && isalnum(word[index]); }
+    bool isEnded() const { return word[index] == '\0'; }
+    bool isHexDigit() const;
+
+    int length() const { return word.length(); }
 
     // These getters advance position
+    void skip() { index++; }
     bool skip(char ch) { if (word[index] == ch) { index++; return true; } else return false; }
-    int getDigit() { return word[index++] - '0'; }
+    int getDigit();
 
 private:
     int index;
     const Word &word;
 };
+
+bool WordParser::isHexDigit() const {
+    const char ch = word[index];
+    if (isdigit(ch)) return true;
+    if (ch >= 'a' && ch <= 'f') return true;
+    if (ch >= 'A' && ch <= 'F') return true;
+    return false;
+}
+
+int WordParser::getDigit() {
+    char ch = word[index++];
+    if (ch >= '0' && ch <= '9') return ch - '0';
+    if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
+    if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
+    return 0;
+}
 
 Parser::Parser(const char *sourceName, const char *pattern) :
     lexer(sourceName, pattern),
@@ -51,19 +73,23 @@ const Word &Parser::peek() {
     return lexer.peek();
 }
 
-int Parser::hexValue(char ch) {
-    if (ch >= '0' && ch <= '9') return ch - '0';
-    if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;
-    if (ch >= 'A' && ch <= 'F') return ch - 'A' + 10;
-    return 0;
+const Word &Parser::getCommand() {
+    if (!isName()) reportError(LEXER_ERROR, "Expected command");
+    return next();
 }
 
-const Word &Parser::getCommand() {
-    const Word &command = next();
-    if (command.isEOL()) {
-        reportError(LEXER_ERROR, "Expected command");
-    }
-    return command;
+bool Parser::isName() {
+    WordParser name(peeknext());
+    if (!name.isAlpha()) return false;
+    name.skip();
+    while (name.isAlnum()) name.skip();
+    if (!name.isEnded()) return false;
+    return true;
+}
+
+const Word &Parser::getName() {
+    if (!isName()) reportError(LEXER_ERROR, "Expected name");
+    return next();
 }
 
 bool Parser::hasArgument() {
@@ -72,20 +98,27 @@ bool Parser::hasArgument() {
     return false;
 }
 
+bool Parser::isInteger() {
+    WordParser word(peeknext());
+    if (word.is('-')) word.skip();
+    while (word.isDigit()) word.skip();
+    if (!word.isEnded()) return false;
+    return true;
+}
+
 int Parser::getInteger() {
-    const Word &word = next();
-    if (!word.isString() || !isdigit(word[0])) {
+    WordParser word(next());
+    bool negate = false;
+    int value = 0;
+    if (word.is('-')) { negate = true; word.skip(); }
+    while (word.isDigit()) {
+        value = value * 10 + word.getDigit();
+    }
+    if (!word.isEnded()) {
         reportError(LEXER_ERROR, "Expected integer");
         return 0;
-    }
-    int value = 0;
-    for (int i = 0; const char ch = word[i]; i++) {
-        if (!isdigit(ch)) {
-            reportError(LEXER_ERROR, "Invalid digit in number constant");
-            return 0;
-        }
-        value = value * 10 + (ch - '0');
-    }
+    };
+    if (negate) value = -value;
     return value;
 }
 
@@ -174,38 +207,37 @@ expectedDate:
     return 0;
 }
 
+bool Parser::isColor() {
+    WordParser word(peeknext());
+    if (!word.is('#')) return false;
+    word.skip();
+    int len = 0;
+    while (word.isHexDigit()) { len++; word.skip(); }
+    if (!word.isEnded()) return false;
+    if (len < 3 || len > 8 || len == 5 || len == 7) return false;
+    return true;
+}
+
 RGBA Parser::getColor() {
-    const Word &word = next();
-    if (!word.isString() || word[0] != '#') {
+    if (!isColor()) {
         reportError(LEXER_ERROR, "Expected color");
         return RGBA_NULL;
     }
-    int len = 0;
-    for (int i = 1; const char ch = word[i]; i++) {
-        len++;
-        if (ch >= '0' && ch <= '9') continue;
-        if (ch >= 'a' && ch <= 'f') continue;
-        if (ch >= 'A' && ch <= 'F') continue;
-        reportError(LEXER_ERROR, "Color constant must only contain hex digits");
-        return RGBA_NULL;
-    }
-    if (len < 3 || len > 8 || len == 5 || len == 7) {
-        reportError(LEXER_ERROR, "Invalid number of digits in color constant");
-        return RGBA_NULL;
-    }
-    uint32_t r, g, b, a;
-    if (len <= 4) {
-        r = (hexValue(word[1]) << 4) + hexValue(word[1]);
-        g = (hexValue(word[2]) << 4) + hexValue(word[2]);
-        b = (hexValue(word[3]) << 4) + hexValue(word[3]);
-        if (len == 4) a = (hexValue(word[4]) << 4) + hexValue(word[4]);
+    WordParser word(next());
+    uint8_t r, g, b, a;
+    word.skip();
+    if (word.length() <= 5) {
+        r = word.getDigit(); r = r * 16 + r;
+        g = word.getDigit(); g = g * 16 + g;
+        b = word.getDigit(); b = b * 16 + b;
+        if (word.isHexDigit()) { a = word.getDigit(); a = a * 16 + a; }
         else a = 0x0ff;
     }
     else {
-        r = (hexValue(word[1]) << 4) + hexValue(word[2]);
-        g = (hexValue(word[3]) << 4) + hexValue(word[4]);
-        b = (hexValue(word[5]) << 4) + hexValue(word[6]);
-        if (len == 8) a = (hexValue(word[7]) << 4) + hexValue(word[8]);
+        r = word.getDigit() * 16 + word.getDigit();
+        g = word.getDigit() * 16 + word.getDigit();
+        b = word.getDigit() * 16 + word.getDigit();
+        if (word.isHexDigit()) { a = word.getDigit() * 16 + word.getDigit(); }
         else a = 0x0ff;
     }
     return RGBA(r, g, b, a);
