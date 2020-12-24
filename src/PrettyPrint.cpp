@@ -7,7 +7,7 @@ PrettyPrint::PrettyPrint() {
 }
 
 void PrettyPrint::startObject(const char *kind) {
-    printf("%*s%s\n", currentIndent, "", kind);
+    printf("%s\n", kind);
     currentIndent += INDENT;
 }
 
@@ -29,7 +29,7 @@ void PrettyPrint::addProperty(const char *name, const RGBA &color) {
 }
 
 void PrettyPrint::addProperty(const char *name, uint32_t value) {
-    printf("%*s%s: %ul\n", currentIndent, "", name, value);
+    printf("%*s%s: %u\n", currentIndent, "", name, value);
 }
 
 void PrettyPrint::addProperty(const char *name, int ncolors, const RGBA *color) {

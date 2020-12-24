@@ -16,6 +16,8 @@ class CompilerTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST( testSubBlock );
     CPPUNIT_TEST( testNoBlock );
     CPPUNIT_TEST( testSegments );
+    CPPUNIT_TEST( testAfter );
+    CPPUNIT_TEST( testFade );
     CPPUNIT_TEST_SUITE_END();
 
     void testFailure() {
@@ -75,6 +77,29 @@ class CompilerTests : public CppUnit::TestFixture  {
             "    dots 10 #4c4\n"
             "    dots 50 #fff\n"
             "segment 976 1050 solid #c60"
+        );
+        Renderer *renderer = compiler.compile();
+        PrettyPrint pp;
+        renderer->serialize(pp);
+    }
+
+    void testAfter() {
+        Compiler compiler("CompilerTests::testAfter",
+            "solid #111\n"
+            "after 10s\n"
+            "solid #222\n"
+        );
+        Renderer *renderer = compiler.compile();
+        PrettyPrint pp;
+        renderer->serialize(pp);
+    }
+
+    void testFade() {
+        Compiler compiler("CompilerTests::testFade",
+            "solid #111\n"
+            "after 10s\n"
+            "fade 2s\n"
+            "    solid #222\n"
         );
         Renderer *renderer = compiler.compile();
         PrettyPrint pp;

@@ -66,17 +66,15 @@ Renderer *Compiler::compileDefine() {
 
 Renderer *Compiler::compileBlock() {
     const Word savedIndent = parser.startBlock();
-    const SavedContext savedContext(this);
     while (parser.inBlock()) compileCommand();
     parser.endBlock(savedIndent);
     return currentScene;
 }
 
-Renderer *Compiler::compileCapturedBlock() {
-    if (parser.hasArgument()) {
-        const SavedContext savedContext(this);
-        return compileCommand();
-    }
+Renderer *Compiler::compileCapturedBlock(Renderer *initial) {
+    const SavedContext savedContext(this);
+    if (initial) addLayer(initial);
+    if (parser.hasArgument()) return compileCommand();
     if (parser.hasBlock()) return compileBlock();
     if (parser.inBlock()) return compileBlock();
     if (firstScene) return new DuplicateRenderer(firstScene);
@@ -137,7 +135,7 @@ Renderer *Compiler::compileFade() {
 Renderer *Compiler::compileAfter() {
     uint32_t duration = parser.getDuration();
     Renderer *before = currentScene;
-    Renderer *after = compileCapturedBlock();
+    Renderer *after = compileCapturedBlock(before);
     return newScene(new AfterRenderer(before, after, duration));
 }
 

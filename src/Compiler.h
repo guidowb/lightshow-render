@@ -42,7 +42,7 @@ private:
 private:
     Renderer *compileDefine();
     Renderer *compileBlock();
-    Renderer *compileCapturedBlock();
+    Renderer *compileCapturedBlock(Renderer *initial = NULL);
     Renderer *compileSequence();
     Renderer *compileCommand();
     Renderer *compileSolid();
