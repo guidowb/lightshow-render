@@ -2,6 +2,8 @@
 #include <cppunit/extensions/HelperMacros.h>
 
 #include "../src/Compiler.h"
+#include "../src/Serialize.h"
+#include "../src/PrettyPrint.h"
 #include "TestHelpers.h"
 
 class CompilerTests : public CppUnit::TestFixture  {
@@ -13,6 +15,7 @@ class CompilerTests : public CppUnit::TestFixture  {
     CPPUNIT_TEST( testSubCommand );
     CPPUNIT_TEST( testSubBlock );
     CPPUNIT_TEST( testNoBlock );
+    CPPUNIT_TEST( testSegments );
     CPPUNIT_TEST_SUITE_END();
 
     void testFailure() {
@@ -62,5 +65,19 @@ class CompilerTests : public CppUnit::TestFixture  {
         Renderer *renderer = compiler.compile();
         CPPUNIT_ASSERT_NOT_NULL(renderer);
         CPPUNIT_ASSERT_EQUAL(LEXER_OK, compiler.maxErrorLevel());
+    }
+
+    void testSegments() {
+        Compiler compiler("CompilerTests::testSegments",
+            "segment 0 75 solid #80c\n"
+            "segment 75 976\n"
+            "    solid #080\n"
+            "    dots 10 #4c4\n"
+            "    dots 50 #fff\n"
+            "segment 976 1050 solid #c60"
+        );
+        Renderer *renderer = compiler.compile();
+        PrettyPrint pp;
+        renderer->serialize(pp);
     }
 };

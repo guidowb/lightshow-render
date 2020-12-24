@@ -40,6 +40,18 @@ bool LayeredRenderer::render(Canvas *canvas) {
     return complete;
 }
 
+DuplicateRenderer::DuplicateRenderer(Renderer *layer) {
+    this->layer = layer;
+}
+
+DuplicateRenderer::~DuplicateRenderer() {
+    // Don't delete the layer, as it's a duplicate and being deleted elsewhere
+}
+
+bool DuplicateRenderer::render(Canvas *canvas) {
+    return this->layer->render(canvas);
+}
+
 SolidRenderer::SolidRenderer(RGBA color) {
     this->color = color;
 }
@@ -142,6 +154,7 @@ bool SegmentRenderer::render(Canvas *canvas) {
         uint16_t to;
     };
 
+    printf("Segment from %d to %d\n", from, to);
     SegmentCanvas segment(canvas, from, to);
     return renderer->render(&segment);
 }

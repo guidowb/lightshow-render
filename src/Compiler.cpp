@@ -5,73 +5,92 @@
 
 #define printf(fmt, ...) {}
 
-Compiler::Compiler(const char *sourceName, const char *pattern) : parser(sourceName, pattern) {}
+Compiler::SavedContext::SavedContext(Compiler *compiler) {
+    this->compiler = compiler;
+    this->firstScene = compiler->firstScene;
+    this->currentScene = compiler->currentScene;
+    compiler->firstScene = NULL;
+    compiler->currentScene = NULL;
+}
 
-Renderer *Compiler::addLayer(Renderer *currentBlock, Renderer *layer) {
-    if (currentBlock) return new LayeredRenderer(currentBlock, layer);
-    else return layer;
+Compiler::SavedContext::~SavedContext() {
+    compiler->firstScene = firstScene;
+    compiler->currentScene = currentScene;
+}
+
+Compiler::Compiler(const char *sourceName, const char *pattern) : parser(sourceName, pattern) {
+    this->firstScene = NULL;
+    this->currentScene = NULL;
+}
+
+Renderer *Compiler::addLayer(Renderer *layer) {
+    if (currentScene) currentScene = new LayeredRenderer(currentScene, layer);
+    else currentScene = layer;
+    return currentScene;
+}
+
+Renderer *Compiler::newScene(Renderer *scene) {
+    currentScene = scene;
+    return currentScene;
 }
 
 Renderer *Compiler::compile() {
     return compileBlock();
 }
 
-Renderer *Compiler::compileCommand(Renderer *currentBlock) {
+Renderer *Compiler::compileCommand() {
 
     const Word &command = parser.getCommand();
-    if (command == "define")   return compileDefine(currentBlock);
-    if (command == "solid")    return compileSolid(currentBlock);
-    if (command == "dots")     return compileDots(currentBlock);
-    if (command == "twinkle")  return compileTwinkle(currentBlock);
-    if (command == "segment")  return compileSegment(currentBlock);
-    if (command == "gradient") return compileGradient(currentBlock);
-    if (command == "fade")     return compileFade(currentBlock);
-    if (command == "after")    return compileAfter(currentBlock);
-    if (command == "repeat")   return compileRepeat(currentBlock);
-    if (command == "time")     return compileTime(currentBlock);
-    if (command == "date")     return compileDate(currentBlock);
+    if (command == "define")   return compileDefine();
+    if (command == "solid")    return compileSolid();
+    if (command == "dots")     return compileDots();
+    if (command == "twinkle")  return compileTwinkle();
+    if (command == "segment")  return compileSegment();
+    if (command == "gradient") return compileGradient();
+    if (command == "fade")     return compileFade();
+    if (command == "after")    return compileAfter();
+    if (command == "repeat")   return compileRepeat();
+    if (command == "time")     return compileTime();
+    if (command == "date")     return compileDate();
 
     parser.reportError(LEXER_ERROR, "Unknown command");
     parser.skipCommand();
-    return new NullRenderer();
+    return newScene(new NullRenderer());
 }
 
-Renderer *Compiler::compileDefine(Renderer *currentBlock) {
+Renderer *Compiler::compileDefine() {
     const Word &name = parser.getName();
-    return currentBlock;
+    
+    return currentScene;
 }
 
-// When compiling a block, we don't know if it represents a simple
-// sequence of layers, or if it includes scenes. Each command is
-// therefore passed a reference to the block we've seen so far.
-// Each command compiler is responsible for either continuing to add
-// layers to that block, and returning it once its completed, OR,
-// for capturing that block as a scene, and returning the scene
-// renderer for it and all subsequent scenes.
-
-Renderer *Compiler::compileBlock(Renderer *currentBlock) {
+Renderer *Compiler::compileBlock() {
     const Word savedIndent = parser.startBlock();
-    while (parser.inBlock()) {
-        currentBlock = compileCommand(currentBlock);
-    }
+    const SavedContext savedContext(this);
+    while (parser.inBlock()) compileCommand();
     parser.endBlock(savedIndent);
-    return currentBlock;
+    return currentScene;
 }
 
-Renderer *Compiler::compileCapturedBlock(Renderer *currentBlock) {
-    if (parser.hasArgument()) return compileCommand(currentBlock);
-    if (parser.hasBlock()) return compileBlock(currentBlock);
-    // This is NOT a dup, because hasBlock has side effects :(
-    return compileBlock(currentBlock);
+Renderer *Compiler::compileCapturedBlock() {
+    if (parser.hasArgument()) {
+        const SavedContext savedContext(this);
+        return compileCommand();
+    }
+    if (parser.hasBlock()) return compileBlock();
+    if (parser.inBlock()) return compileBlock();
+    if (firstScene) return new DuplicateRenderer(firstScene);
+    parser.reportError(LEXER_ERROR, "Expected block");
+    return newScene(new NullRenderer());
 }
 
-Renderer *Compiler::compileSolid(Renderer *currentBlock) {
+Renderer *Compiler::compileSolid() {
     RGBA color = parser.getColor();
     parser.endCommand();
-    return addLayer(currentBlock, new SolidRenderer(color));
+    return addLayer(new SolidRenderer(color));
 }
 
-Renderer *Compiler::compileDots(Renderer *currentBlock) {
+Renderer *Compiler::compileDots() {
     Vector<RGBA> colors(10);
     int spacing = parser.getInteger();
     colors.append(parser.getColor());
@@ -79,24 +98,24 @@ Renderer *Compiler::compileDots(Renderer *currentBlock) {
         colors.append(parser.getColor());
     }
     parser.endCommand();
-    return addLayer(currentBlock, new DotsRenderer(spacing, colors));
+    return addLayer(new DotsRenderer(spacing, colors));
 }
 
-Renderer *Compiler::compileTwinkle(Renderer *currentBlock) {
+Renderer *Compiler::compileTwinkle() {
     RGBA color = parser.getColor();
     int tpm = parser.hasArgument() ? parser.getInteger() : 0;
     parser.endCommand();
-    return addLayer(currentBlock, new TwinkleRenderer(color, tpm));
+    return addLayer(new TwinkleRenderer(color, tpm));
 }
 
-Renderer *Compiler::compileSegment(Renderer *currentBlock) {
+Renderer *Compiler::compileSegment() {
     int from = parser.getInteger();
     int to = parser.getInteger();
     Renderer *renderer = compileCapturedBlock();
-    return addLayer(currentBlock, new SegmentRenderer(from, to, renderer));
+    return addLayer(new SegmentRenderer(from, to, renderer));
 }
 
-Renderer *Compiler::compileGradient(Renderer *currentBlock) {
+Renderer *Compiler::compileGradient() {
     Vector<RGBA> colors(10);
     colors.append(parser.getColor());
     colors.append(parser.getColor());
@@ -104,36 +123,39 @@ Renderer *Compiler::compileGradient(Renderer *currentBlock) {
         colors.append(parser.getColor());
     }
     parser.endCommand();
-    return addLayer(currentBlock, new GradientRenderer(colors));
+    return addLayer(new GradientRenderer(colors));
 }
 
-Renderer *Compiler::compileFade(Renderer *before) {
+Renderer *Compiler::compileFade() {
     uint32_t duration = parser.getDuration();
+    if (!firstScene) firstScene = currentScene;
+    Renderer *before = currentScene;
     Renderer *after = compileCapturedBlock();
-    return new FadeRenderer(before, after, duration);
+    return newScene(new FadeRenderer(before, after, duration));
 }
 
-Renderer *Compiler::compileAfter(Renderer *before) {
+Renderer *Compiler::compileAfter() {
     uint32_t duration = parser.getDuration();
-    Renderer *after = compileCapturedBlock(before);
-    return new AfterRenderer(before, after, duration);
+    Renderer *before = currentScene;
+    Renderer *after = compileCapturedBlock();
+    return newScene(new AfterRenderer(before, after, duration));
 }
 
-Renderer *Compiler::compileRepeat(Renderer *currentBlock) {
+Renderer *Compiler::compileRepeat() {
     Renderer *block = compileCapturedBlock();
-    return addLayer(currentBlock, new RepeatRenderer(block));
+    return addLayer(new RepeatRenderer(block));
 }
 
-Renderer *Compiler::compileTime(Renderer *currentBlock) {
+Renderer *Compiler::compileTime() {
     uint32_t from = parser.getTime();
     uint32_t to = parser.getTime();
     Renderer *block = compileCapturedBlock();
-    return addLayer(currentBlock, new TimeRenderer(block, from, to));
+    return addLayer(new TimeRenderer(block, from, to));
 }
 
-Renderer *Compiler::compileDate(Renderer *currentBlock) {
+Renderer *Compiler::compileDate() {
     uint16_t from = parser.getDate();
     uint16_t to = parser.getDate();
     Renderer *block = compileCapturedBlock();
-    return addLayer(currentBlock, new DateRenderer(block, from, to));
+    return addLayer(new DateRenderer(block, from, to));
 }

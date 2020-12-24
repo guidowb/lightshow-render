@@ -7,6 +7,9 @@
 #define LightShow_h
 
 #include <stdint.h>
+#include <iostream>
+
+class Serializer;
 
 class RGBA {
 public:
@@ -44,6 +47,7 @@ class Renderer {
 public:
     virtual ~Renderer();
     virtual bool render(Canvas *canvas) = 0;
+    virtual void serialize(Serializer &serializer) = 0;
 };
 
 extern void render(Renderer *renderer, Canvas *canvas);

@@ -35,22 +35,36 @@ public:
     LayeredRenderer(Renderer *thisLayer, Renderer *nextLayer);
     virtual ~LayeredRenderer();
     virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
 
 private:
     Renderer *thisLayer;
     Renderer *nextLayer;
 };
 
+class DuplicateRenderer : public Renderer {
+public:
+    DuplicateRenderer(Renderer *layer);
+    virtual ~DuplicateRenderer();
+    virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
+
+private:
+    Renderer *layer;
+};
+
 class NullRenderer : public Renderer {
 public:
     NullRenderer();
     virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
 };
 
 class SolidRenderer : public Renderer {
 public:
     SolidRenderer(RGBA color);
     virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
 
 private:
     RGBA color;
@@ -61,6 +75,7 @@ public:
     DotsRenderer(uint16_t spacing, Vector<RGBA> &colors);
     virtual ~DotsRenderer();
     virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
 
 private:
     uint16_t spacing;
@@ -72,6 +87,7 @@ class TwinkleRenderer : public Renderer {
 public:
     TwinkleRenderer(RGBA color, uint16_t tpm);
     virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
 
 private:
 	uint32_t twinkles_per_minute;
@@ -85,6 +101,7 @@ public:
     SegmentRenderer(uint16_t from, uint16_t to, Renderer *renderer);
     virtual ~SegmentRenderer();
     virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
 
 private:
     uint16_t from;
@@ -97,6 +114,7 @@ public:
     GradientRenderer(Vector<RGBA> &colors);
     virtual ~GradientRenderer();
     virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
 
 private:
     int ncolors;
@@ -108,6 +126,7 @@ public:
     FadeRenderer(Renderer *before, Renderer *after, uint32_t duration);
     virtual ~FadeRenderer();
     virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
 
 private:
     Renderer *before;
@@ -120,6 +139,7 @@ public:
     AfterRenderer(Renderer *before, Renderer *after, uint32_t duration);
     virtual ~AfterRenderer();
     virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
 
 private:
     Renderer *before;
@@ -132,6 +152,7 @@ public:
     RepeatRenderer(Renderer *block);
     virtual ~RepeatRenderer();
     virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
 
 private:
     Renderer *block;
@@ -143,6 +164,7 @@ public:
     TimeRenderer(Renderer *block, uint32_t from, uint32_t to);
     virtual ~TimeRenderer();
     virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
 
 private:
     Renderer *block;
@@ -155,6 +177,7 @@ public:
     DateRenderer(Renderer *block, uint16_t from, uint16_t to);
     virtual ~DateRenderer();
     virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
 
 private:
     Renderer *block;

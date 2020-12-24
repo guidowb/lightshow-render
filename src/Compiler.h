@@ -20,26 +20,41 @@ public:
 
 private:
     Parser parser;
+    Renderer *firstScene;
+    Renderer *currentScene;
 
 private:
-    Renderer *addLayer(Renderer *currentBlock, Renderer *layer);
+    class SavedContext {
+    public:
+        SavedContext(Compiler *compiler);
+        ~SavedContext();
+
+    private:
+        Compiler *compiler;
+        Renderer *firstScene;
+        Renderer *currentScene;
+    };
 
 private:
-    Renderer *compileDefine(Renderer *currentBlock);
-    Renderer *compileBlock(Renderer *currentBlock = NULL);
-    Renderer *compileCapturedBlock(Renderer *currentBlock = NULL);
-    Renderer *compileSequence(Renderer *currentBlock);
-    Renderer *compileCommand(Renderer *currentBlock);
-    Renderer *compileSolid(Renderer *currentBlock);
-    Renderer *compileDots(Renderer *currentBlock);
-    Renderer *compileTwinkle(Renderer *currentBlock);
-    Renderer *compileSegment(Renderer *currentBlock);
-    Renderer *compileGradient(Renderer *currentBlock);
-    Renderer *compileFade(Renderer *currentBlock);
-    Renderer *compileAfter(Renderer *currentBlock);
-    Renderer *compileRepeat(Renderer *currentBlock);
-    Renderer *compileTime(Renderer *ccurrentBlock);
-    Renderer *compileDate(Renderer *ccurrentBlock);
+    Renderer *addLayer(Renderer *layer);
+    Renderer *newScene(Renderer *scene);
+
+private:
+    Renderer *compileDefine();
+    Renderer *compileBlock();
+    Renderer *compileCapturedBlock();
+    Renderer *compileSequence();
+    Renderer *compileCommand();
+    Renderer *compileSolid();
+    Renderer *compileDots();
+    Renderer *compileTwinkle();
+    Renderer *compileSegment();
+    Renderer *compileGradient();
+    Renderer *compileFade();
+    Renderer *compileAfter();
+    Renderer *compileRepeat();
+    Renderer *compileTime();
+    Renderer *compileDate();
 };
 
 #endif /* Compiler_h */

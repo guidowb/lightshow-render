@@ -14,15 +14,19 @@ SRCS= \
 	Compiler.cpp \
 	Renderers.cpp \
 	Canvasses.cpp \
-	LightShow.cpp
+	LightShow.cpp \
+	Serialize.cpp \
+	PrettyPrint.cpp
 
 OBJS= \
 	Lexer.o \
 	Parser.o \
 	Compiler.o \
+	Serialize.o \
 	Renderers.o \
 	Canvasses.o \
-	LightShow.o
+	LightShow.o \
+	PrettyPrint.o
 
 $(LIB): $(OBJS)
 	ar ru $@ $^
