@@ -192,6 +192,44 @@ FadeRenderer::~FadeRenderer() {
     if (this->after)  delete this->after;
 }
 
+bool WipeRenderer::render(Canvas *canvas) {
+
+    uint32_t time = canvas->sceneTime();
+
+    if (time > duration) {
+        return after->render(canvas);
+    }
+
+    class WipeCanvas : public MappedCanvas {
+    public:
+        WipeCanvas(Canvas *parent, uint32_t ratio) : MappedCanvas(parent) { this->ratio = ratio; }
+        virtual void setPixel(uint16_t pixel, RGBA color) {
+            uint16_t cut = (getSize() * ratio) / 1000;
+            if (pixel >= cut) parent->setPixel(pixel, color);
+        }
+
+    private:
+        uint32_t ratio;
+    };
+
+    before->render(canvas);
+    uint32_t ratio = (time * 1000) / duration;
+    WipeCanvas faded(canvas, ratio);
+    after->render(&faded);
+    return false;
+}
+
+WipeRenderer::WipeRenderer(Renderer *before, Renderer *after, uint32_t duration) {
+    this->before = before;
+    this->after = after;
+    this->duration = duration;
+}
+
+WipeRenderer::~WipeRenderer() {
+    if (this->before) delete this->before;
+    if (this->after)  delete this->after;
+}
+
 bool FadeRenderer::render(Canvas *canvas) {
 
     uint32_t time = canvas->sceneTime();

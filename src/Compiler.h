@@ -52,6 +52,7 @@ private:
     Renderer *compileSegment();
     Renderer *compileGradient();
     Renderer *compileFade();
+    Renderer *compileWipe();
     Renderer *compileAfter();
     Renderer *compileRepeat();
     Renderer *compileTime();

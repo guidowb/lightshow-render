@@ -134,6 +134,19 @@ private:
     uint32_t duration;
 };
 
+class WipeRenderer : public Renderer {
+public:
+    WipeRenderer(Renderer *before, Renderer *after, uint32_t duration);
+    virtual ~WipeRenderer();
+    virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
+
+private:
+    Renderer *before;
+    Renderer *after;
+    uint32_t duration;
+};
+
 class AfterRenderer : public Renderer {
 public:
     AfterRenderer(Renderer *before, Renderer *after, uint32_t duration);

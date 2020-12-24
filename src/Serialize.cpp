@@ -63,6 +63,14 @@ void FadeRenderer::serialize(Serializer &serializer) {
     serializer.endObject();
 }
 
+void WipeRenderer::serialize(Serializer &serializer) {
+    serializer.startObject("WipeRenderer");
+    serializer.addProperty("before", before);
+    serializer.addProperty("after", after);
+    serializer.addProperty("duration", duration);
+    serializer.endObject();
+}
+
 void AfterRenderer::serialize(Serializer &serializer) {
     serializer.startObject("AfterRenderer");
     serializer.addProperty("before", before);

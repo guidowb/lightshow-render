@@ -53,6 +53,7 @@ Renderer *Compiler::compileCommand() {
     if (command == "segment")  return compileSegment();
     if (command == "gradient") return compileGradient();
     if (command == "fade")     return compileFade();
+    if (command == "wipe")     return compileWipe();
     if (command == "after")    return compileAfter();
     if (command == "repeat")   return compileRepeat();
     if (command == "time")     return compileTime();
@@ -134,6 +135,13 @@ Renderer *Compiler::compileFade() {
     Renderer *before = cutScene();
     Renderer *after = compileCapturedBlock();
     return newScene(new FadeRenderer(before, after, duration));
+}
+
+Renderer *Compiler::compileWipe() {
+    uint32_t duration = parser.getDuration();
+    Renderer *before = cutScene();
+    Renderer *after = compileCapturedBlock();
+    return newScene(new WipeRenderer(before, after, duration));
 }
 
 Renderer *Compiler::compileAfter() {
