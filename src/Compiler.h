@@ -38,6 +38,7 @@ private:
 private:
     Renderer *addLayer(Renderer *layer);
     Renderer *newScene(Renderer *scene);
+    Renderer *cutScene();
 
 private:
     Renderer *compileDefine();

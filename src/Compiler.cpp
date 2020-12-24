@@ -34,6 +34,11 @@ Renderer *Compiler::newScene(Renderer *scene) {
     return currentScene;
 }
 
+Renderer *Compiler::cutScene() {
+    if (!firstScene) firstScene = currentScene;
+    return currentScene;
+}
+
 Renderer *Compiler::compile() {
     return compileBlock();
 }
@@ -126,8 +131,7 @@ Renderer *Compiler::compileGradient() {
 
 Renderer *Compiler::compileFade() {
     uint32_t duration = parser.getDuration();
-    if (!firstScene) firstScene = currentScene;
-    Renderer *before = currentScene;
+    Renderer *before = cutScene();
     Renderer *after = compileCapturedBlock();
     return newScene(new FadeRenderer(before, after, duration));
 }
