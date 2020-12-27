@@ -205,7 +205,7 @@ bool WipeRenderer::render(Canvas *canvas) {
         WipeCanvas(Canvas *parent, uint32_t ratio) : MappedCanvas(parent) { this->ratio = ratio; }
         virtual void setPixel(uint16_t pixel, RGBA color) {
             uint16_t cut = (getSize() * ratio) / 1000;
-            if (pixel >= cut) parent->setPixel(pixel, color);
+            if (pixel <= cut) parent->setPixel(pixel, color);
         }
 
     private:
