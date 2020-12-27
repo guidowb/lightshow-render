@@ -1,3 +1,5 @@
+#ifndef ARDUINO
+
 #include "PrettyPrint.h"
 
 const int INDENT = 3;
@@ -40,3 +42,5 @@ void PrettyPrint::addProperty(const char *name, int ncolors, const RGBA *color) 
     }
     printf(" ]\n");
 }
+
+#endif
