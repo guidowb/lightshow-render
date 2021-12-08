@@ -71,6 +71,13 @@ void WipeRenderer::serialize(Serializer &serializer) {
     serializer.endObject();
 }
 
+void RotateRenderer::serialize(Serializer &serializer) {
+    serializer.startObject("RotateRenderer");
+    serializer.addProperty("block", block);
+    serializer.addProperty("pps", pps);
+    serializer.endObject();
+}
+
 void AfterRenderer::serialize(Serializer &serializer) {
     serializer.startObject("AfterRenderer");
     serializer.addProperty("before", before);

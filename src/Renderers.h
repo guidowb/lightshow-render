@@ -147,6 +147,18 @@ private:
     uint32_t duration;
 };
 
+class RotateRenderer : public Renderer {
+public:
+    RotateRenderer(Renderer *block, uint32_t pps);
+    virtual ~RotateRenderer();
+    virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
+
+private:
+    Renderer *block;
+    uint32_t pps;
+};
+
 class AfterRenderer : public Renderer {
 public:
     AfterRenderer(Renderer *before, Renderer *after, uint32_t duration);

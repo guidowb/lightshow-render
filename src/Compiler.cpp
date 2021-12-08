@@ -54,6 +54,7 @@ Renderer *Compiler::compileCommand() {
     if (command == "gradient") return compileGradient();
     if (command == "fade")     return compileFade();
     if (command == "wipe")     return compileWipe();
+    if (command == "rotate")   return compileRotate();
     if (command == "after")    return compileAfter();
     if (command == "repeat")   return compileRepeat();
     if (command == "time")     return compileTime();
@@ -142,6 +143,12 @@ Renderer *Compiler::compileWipe() {
     Renderer *before = cutScene();
     Renderer *after = compileCapturedBlock();
     return newScene(new WipeRenderer(before, after, duration));
+}
+
+Renderer *Compiler::compileRotate() {
+    uint16_t pps = parser.getInteger();
+    Renderer *block = compileCapturedBlock();
+    return newScene(new RotateRenderer(block, pps));
 }
 
 Renderer *Compiler::compileAfter() {
