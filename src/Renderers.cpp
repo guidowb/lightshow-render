@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <time.h>
 
-//#define printf(fmt, ...) {}
+#define printf(fmt, ...) {}
 
 Renderer::~Renderer() {}
 

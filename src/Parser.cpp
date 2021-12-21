@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <unistd.h>
 
-//#define printf(fmt, ...) {}
+#define printf(fmt, ...) {}
 
 class WordParser {
 public:
