@@ -10,6 +10,7 @@
 
 #include <stdlib.h>
 #include "LightShow.h"
+#include "Canvasses.h"
 
 template<typename T> class Vector {
 public:
@@ -96,12 +97,13 @@ private:
 	RGBA color;
 };
 
-class SegmentRenderer : public Renderer {
+class SegmentRenderer : public Renderer, MappedCanvas {
 public:
     SegmentRenderer(uint16_t from, uint16_t to, Renderer *renderer);
     virtual ~SegmentRenderer();
     virtual bool render(Canvas *canvas);
     virtual void serialize(Serializer &serializer);
+    virtual void setPixel(uint16_t pixel, RGBA color);
 
 private:
     uint16_t from;
@@ -121,38 +123,43 @@ private:
     RGBA *color;
 };
 
-class FadeRenderer : public Renderer {
+class FadeRenderer : public Renderer, MappedCanvas {
 public:
     FadeRenderer(Renderer *before, Renderer *after, uint32_t duration);
     virtual ~FadeRenderer();
     virtual bool render(Canvas *canvas);
     virtual void serialize(Serializer &serializer);
+    virtual void setPixel(uint16_t pixel, RGBA color);
 
 private:
     Renderer *before;
     Renderer *after;
     uint32_t duration;
+    uint32_t ratio;
 };
 
-class WipeRenderer : public Renderer {
+class WipeRenderer : public Renderer, MappedCanvas {
 public:
     WipeRenderer(Renderer *before, Renderer *after, uint32_t duration);
     virtual ~WipeRenderer();
     virtual bool render(Canvas *canvas);
     virtual void serialize(Serializer &serializer);
+    virtual void setPixel(uint16_t pixel, RGBA color);
 
 private:
     Renderer *before;
     Renderer *after;
     uint32_t duration;
+    uint32_t ratio;
 };
 
-class AfterRenderer : public Renderer {
+class AfterRenderer : public Renderer, MappedCanvas {
 public:
     AfterRenderer(Renderer *before, Renderer *after, uint32_t duration);
     virtual ~AfterRenderer();
     virtual bool render(Canvas *canvas);
     virtual void serialize(Serializer &serializer);
+    virtual uint32_t sceneTime();
 
 private:
     Renderer *before;
@@ -160,12 +167,13 @@ private:
     uint32_t duration;
 };
 
-class RepeatRenderer : public Renderer {
+class RepeatRenderer : public Renderer, MappedCanvas {
 public:
     RepeatRenderer(Renderer *block);
     virtual ~RepeatRenderer();
     virtual bool render(Canvas *canvas);
     virtual void serialize(Serializer &serializer);
+    virtual uint32_t sceneTime();
 
 private:
     Renderer *block;

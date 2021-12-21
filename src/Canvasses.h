@@ -5,7 +5,7 @@
 
 class MappedCanvas : public Canvas {
 protected:
-    MappedCanvas(Canvas *parent);
+    MappedCanvas(Canvas *canvas = nullptr);
 
 public:
     virtual uint16_t getSize();
@@ -14,7 +14,7 @@ public:
     virtual void setPixel(uint16_t pixel, RGBA color);
 
 protected:
-    Canvas *parent;
+    Canvas *canvas;
 };
 
 #endif

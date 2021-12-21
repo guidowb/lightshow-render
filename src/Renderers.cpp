@@ -1,5 +1,4 @@
 #include "Renderers.h"
-#include "Canvasses.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -142,21 +141,13 @@ SegmentRenderer::~SegmentRenderer() {
 }
 
 bool SegmentRenderer::render(Canvas *canvas) {
-
-    class SegmentCanvas : public MappedCanvas {
-    public:
-        SegmentCanvas(Canvas *parent, uint16_t from, uint16_t to) : MappedCanvas(parent) { this->from = from; this->to = to; }
-        virtual uint16_t getSize() { return to - from; }
-        virtual void setPixel(uint16_t pixel, RGBA color) { parent->setPixel(pixel + from, color); }
-
-    private:
-        uint16_t from;
-        uint16_t to;
-    };
-
+    this->canvas = canvas;
     printf("Segment from %d to %d\n", from, to);
-    SegmentCanvas segment(canvas, from, to);
-    return renderer->render(&segment);
+    return renderer->render(this);
+}
+
+void SegmentRenderer::setPixel(uint16_t pixel, RGBA color) {
+    canvas->setPixel(pixel + from, color);
 }
 
 GradientRenderer::GradientRenderer(Vector<RGBA> &colors) {
@@ -192,7 +183,7 @@ FadeRenderer::~FadeRenderer() {
     if (this->after)  delete this->after;
 }
 
-bool WipeRenderer::render(Canvas *canvas) {
+bool FadeRenderer::render(Canvas *canvas) {
 
     uint32_t time = canvas->sceneTime();
 
@@ -200,23 +191,20 @@ bool WipeRenderer::render(Canvas *canvas) {
         return after->render(canvas);
     }
 
-    class WipeCanvas : public MappedCanvas {
-    public:
-        WipeCanvas(Canvas *parent, uint32_t ratio) : MappedCanvas(parent) { this->ratio = ratio; }
-        virtual void setPixel(uint16_t pixel, RGBA color) {
-            uint16_t cut = (getSize() * ratio) / 1000;
-            if (pixel <= cut) parent->setPixel(pixel, color);
-        }
-
-    private:
-        uint32_t ratio;
-    };
+    // TODO: If the "after" renderer has any transparency, then we can't stop rendering the
+    // "before" at the end of the fade. That's something we should consider detecting and
+    // handling more properly.
 
     before->render(canvas);
-    uint32_t ratio = (time * 1000) / duration;
-    WipeCanvas faded(canvas, ratio);
-    after->render(&faded);
+    this->canvas = canvas;
+    this->ratio = (time * 1000) / duration;
+    after->render(this);
     return false;
+}
+
+void FadeRenderer::setPixel(uint16_t pixel, RGBA color) {
+    color.a = (color.a * this->ratio) / 1000;
+    canvas->setPixel(pixel, color);
 }
 
 WipeRenderer::WipeRenderer(Renderer *before, Renderer *after, uint32_t duration) {
@@ -230,7 +218,7 @@ WipeRenderer::~WipeRenderer() {
     if (this->after)  delete this->after;
 }
 
-bool FadeRenderer::render(Canvas *canvas) {
+bool WipeRenderer::render(Canvas *canvas) {
 
     uint32_t time = canvas->sceneTime();
 
@@ -238,27 +226,16 @@ bool FadeRenderer::render(Canvas *canvas) {
         return after->render(canvas);
     }
 
-    // TODO: If the "after" renderer has any transparency, then we can't stop rendering the
-    // "before" at the end of the fade. That's something we should consider detecting and
-    // handling more properly.
-
-    class FadeCanvas : public MappedCanvas {
-    public:
-        FadeCanvas(Canvas *parent, uint32_t ratio) : MappedCanvas(parent) { this->ratio = ratio; }
-        virtual void setPixel(uint16_t pixel, RGBA color) {
-            color.a = (color.a * ratio) / 1000;
-            parent->setPixel(pixel, color);
-        }
-
-    private:
-        uint32_t ratio;
-    };
-
     before->render(canvas);
-    uint32_t ratio = (time * 1000) / duration;
-    FadeCanvas faded(canvas, ratio);
-    after->render(&faded);
+    this->canvas = canvas;
+    this->ratio = (time * 1000) / duration;
+    after->render(this);
     return false;
+}
+
+void WipeRenderer::setPixel(uint16_t pixel, RGBA color) {
+    uint16_t cut = (getSize() * this->ratio) / 1000;
+    if (pixel <= cut) canvas->setPixel(pixel, color);
 }
 
 AfterRenderer::AfterRenderer(Renderer *before, Renderer *after, uint32_t duration) {
@@ -276,23 +253,18 @@ AfterRenderer::~AfterRenderer() {
 
 bool AfterRenderer::render(Canvas *canvas) {
 
-    class AfterCanvas : public MappedCanvas {
-    public:
-        AfterCanvas(Canvas *parent, uint32_t duration) : MappedCanvas(parent) { this->duration = duration; }
-        virtual uint32_t sceneTime() { return parent->sceneTime() - duration; }
-
-    private:
-        uint32_t duration;
-    };
-
     uint32_t time = canvas->sceneTime();
 
     before->render(canvas);
     if (time > duration) {
-        AfterCanvas skewed(canvas, duration);
-        return after->render(&skewed);
+        this->canvas = canvas;
+        return after->render(this);
     }
     return false;
+}
+
+uint32_t AfterRenderer::sceneTime() {
+    return canvas->sceneTime() - duration;
 }
 
 RepeatRenderer::RepeatRenderer(Renderer *block) {
@@ -308,21 +280,17 @@ bool RepeatRenderer::render(Canvas *canvas) {
 
     uint32_t sceneTime = canvas->sceneTime();
 
-    class RepeatCanvas : public MappedCanvas {
-    public:
-        RepeatCanvas(Canvas *parent, uint32_t clockSkew) : MappedCanvas(parent) { this->clockSkew = clockSkew; }
-        virtual uint32_t sceneTime() { return parent->sceneTime() - clockSkew; }
-
-    private:
-        uint32_t clockSkew;
-    };
-
-    RepeatCanvas repeat(canvas, this->clockSkew);
-    if (block->render(&repeat)) {
+    this->canvas = canvas;
+    if (block->render(this)) {
         this->clockSkew = sceneTime;
     }
     return true;
 }
+
+uint32_t RepeatRenderer::sceneTime() {
+    return canvas->sceneTime() - clockSkew;
+}
+
 
 TimeRenderer::TimeRenderer(Renderer *block, uint32_t from, uint32_t to) {
     this->block = block;
