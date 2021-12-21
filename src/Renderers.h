@@ -104,6 +104,7 @@ public:
     virtual bool render(Canvas *canvas);
     virtual void serialize(Serializer &serializer);
     virtual void setPixel(uint16_t pixel, RGBA color);
+    virtual uint16_t getSize();
 
 private:
     uint16_t from;
@@ -153,7 +154,21 @@ private:
     uint32_t ratio;
 };
 
-class AfterRenderer : public Renderer, MappedCanvas {
+class RotateRenderer : public Renderer, MappedCanvas {
+public:
+    RotateRenderer(Renderer *block, uint32_t pps);
+    virtual ~RotateRenderer();
+    virtual bool render(Canvas *canvas);
+    virtual void serialize(Serializer &serializer);
+    virtual void setPixel(uint16_t pixel, RGBA color);
+
+private:
+    Renderer *block;
+    uint32_t pps;
+    uint16_t offset;
+};
+
+class AfterRenderer : public Renderer , MappedCanvas {
 public:
     AfterRenderer(Renderer *before, Renderer *after, uint32_t duration);
     virtual ~AfterRenderer();

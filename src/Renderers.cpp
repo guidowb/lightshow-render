@@ -150,6 +150,10 @@ void SegmentRenderer::setPixel(uint16_t pixel, RGBA color) {
     canvas->setPixel(pixel + from, color);
 }
 
+uint16_t SegmentRenderer::getSize() {
+    return to - from;
+}
+
 GradientRenderer::GradientRenderer(Vector<RGBA> &colors) {
     this->ncolors = colors.size();
     this->color = new RGBA[this->ncolors];
@@ -236,6 +240,30 @@ bool WipeRenderer::render(Canvas *canvas) {
 void WipeRenderer::setPixel(uint16_t pixel, RGBA color) {
     uint16_t cut = (getSize() * this->ratio) / 1000;
     if (pixel <= cut) canvas->setPixel(pixel, color);
+}
+
+RotateRenderer::RotateRenderer(Renderer *block, uint32_t pps) {
+    this->block = block;
+    this->pps = pps;
+}
+
+RotateRenderer::~RotateRenderer() {
+    if (this->block) delete this->block;
+}
+
+bool RotateRenderer::render(Canvas *canvas) {
+
+    uint32_t time = canvas->sceneTime();
+
+    this->offset = time / pps;
+    this->canvas = canvas;
+    block->render(this);
+    return true;
+}
+
+void RotateRenderer::setPixel(uint16_t pixel, RGBA color) {
+    uint16_t npixel = (pixel + offset) % getSize();
+    canvas->setPixel(npixel, color);
 }
 
 AfterRenderer::AfterRenderer(Renderer *before, Renderer *after, uint32_t duration) {
